@@ -1,0 +1,75 @@
+---
+title: "NESP Kowari project"
+output: html_notebook
+---
+```{r,message=FALSE,include=FALSE}
+source(scripts/kowari_script.R)
+```
+
+Aaron Greenville  
+
+Kowari capture data from grids: PAN GRID and WAL GRID.  
+
+**To do:**
+* remove recaps
+* two-state model
+* map
+
+##Trapping effort per trip
+```{r}
+Trap.effort
+```
+
+##Trapping effort per year
+```{r}
+trap.effort.yr
+```
+
+##MARSS 1-state model with density dependence
+```{r}
+kowariMARSS
+```
+
+##MARSS 2-state model with density dependence
+```{r}
+kowariMARSS.2
+```
+
+
+##Figures
+```{r, echo=FALSE}
+par(mfrow = c(1,1), xpd=F, mar=c(5.1, 4.1, 4.1, 11), family = "serif")
+
+matplot(years, (kow.x.ZC.1.TN.r), ylim = c(0,15), type="l",lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
+        bty="l", font.lab=2)
+  polygon(c(years,rev(years)),c(t(kow.x.ZC.1.TN.LC.r), rev( t(kow.x.ZC.1.TN.UC.r))) ,
+        col = adjustcolor("grey90", 0.9), border = NA)
+  matlines(years, (kow.x.ZC.1.TN.r), lwd=1)
+  matpoints(years,t(kowari.l),pch=15:23, cex =1, col=1)
+  legend("topright",xpd=T, legend=sites, pch=15:23, cex=1, pt.cex = 1,
+       col=c(1,1),box.col=NA,inset=c(-.33,0))
+```
+Fig. One-state model.
+
+```{r, echo=FALSE}
+par(mfrow = c(1,1), xpd=F, mar=c(5.1, 4.1, 4.1, 11), family = "serif")
+
+matplot(years, (kow.x.2.TN.r), ylim = c(0,15), type="l",lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
+        bty="l", font.lab=2)
+  polygon(c(years,rev(years)),c(t(kow.x.2.TN.LC.r), rev( t(kow.x.2.TN.UC.r))) ,
+        col = adjustcolor("grey90", 0.9), border = NA)
+  polygon(c(years,rev(years)),c(t(kow.x.2.TN.2.LC.r), rev( t(kow.x.2.TN.2.UC.r))) ,
+        col = adjustcolor("blue", 0.4), border = NA)
+
+  matlines(years, (kow.x.2.TN.r), lwd=2)
+  matlines(years, (kow.x.2.TN.2.r), lwd=2, col="blue")
+  matpoints(years,t(kowari.l),pch=15:23, cex =1, col=c("black", "blue"))
+
+  legend("topright",xpd=T, legend=sites, pch=15:23, cex=1, pt.cex = 1,
+       col=c("black","blue"),box.col=NA,inset=c(-.33,0))
+```
+
+Fig. 2-state model.
+
+
+
