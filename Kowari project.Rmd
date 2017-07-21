@@ -3,18 +3,19 @@ title: "NESP Kowari project"
 output: html_notebook
 ---
 ```{r,message=FALSE,include=FALSE}
-source(scripts/kowari_script.R)
+source("scripts/kowari_script.R")
 ```
 
-Aaron Greenville  
+*Aaron Greenville*  
 
-Kowari capture data from grids: PAN GRID and WAL GRID.  
 
-**To do:**
-* remove recaps
-* two-state model
-* map
+Kowari capture data from grids: PAN GRID and WAL GRID (approx. 25km apart).  
 
+**To do:**  
+
+* map  
+
+  
 ##Trapping effort per trip
 ```{r}
 Trap.effort
@@ -30,9 +31,24 @@ trap.effort.yr
 kowariMARSS
 ```
 
+```{r}
+caterplot(kowariMARSS, "x")
+caterplot(kowariMARSS, "A")
+caterplot(kowariMARSS, parms = c("U", "B","sigmaQ", "sigmaR"),
+          style= "gray")
+
+```
+
+
 ##MARSS 2-state model with density dependence
 ```{r}
 kowariMARSS.2
+```
+
+```{r}
+caterplot(kowariMARSS.2, "x")
+caterplot(kowariMARSS.2, parms = c("U", "B","sigmaQ", "sigmaR"),
+            style= "gray")  
 ```
 
 
@@ -59,7 +75,7 @@ matplot(years, (kow.x.2.TN.r), ylim = c(0,15), type="l",lwd=1, xlab="Year", ylab
   polygon(c(years,rev(years)),c(t(kow.x.2.TN.LC.r), rev( t(kow.x.2.TN.UC.r))) ,
         col = adjustcolor("grey90", 0.9), border = NA)
   polygon(c(years,rev(years)),c(t(kow.x.2.TN.2.LC.r), rev( t(kow.x.2.TN.2.UC.r))) ,
-        col = adjustcolor("blue", 0.4), border = NA)
+        col = adjustcolor("blue", 0.2), border = NA)
 
   matlines(years, (kow.x.2.TN.r), lwd=2)
   matlines(years, (kow.x.2.TN.2.r), lwd=2, col="blue")
