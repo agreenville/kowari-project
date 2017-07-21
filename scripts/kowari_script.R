@@ -24,25 +24,37 @@ source("R/MARSS_functions.R") #bayesian models
 kowari <- read.csv("data/DEWNRSA_Kowari_captures.csv", header=T) 
 head(kowari)
 
-# add year
-kowari.yr <- cbind(kowari, Year=format(as.Date(kowari$Obs.Capt.date, format="%d/%m/%Y"),"%Y"))
+# add year and month
+kowari.yr <- cbind(kowari, Year=format(as.Date(kowari$Obs.Capt.date, format="%d/%m/%Y"),"%Y"),
+                   Month=format(as.Date(kowari$Obs.Capt.date, format="%d/%m/%Y"),"%m.%Y"))
 head(kowari.yr)
+
+# order by date and site
+kowari.yr <- kowari.yr[order(kowari.yr$Year, as.Date(kowari.yr$Obs.Capt.date), kowari.yr$Site),]
+# subset grids
+kowari.grid.yr <- subset(kowari.yr, Site=="PAN GRID"|Site=="WAL GRID")
+
+# id recapts in the same trip 
+kowari.grid.recap.yr <- cbind(kowari.grid.yr, 
+                              recapt = ifelse(duplicated(kowari.grid.yr$Month) & 
+                                                duplicated(kowari.grid.yr$Microchip)==TRUE, 1,"no" ))
+# remove recapts
+kowari.grid.no.recap.yr <- subset(kowari.grid.recap.yr, recapt == "no")
 
 # trapping effort
 Trap.effort <- read.csv("data/trappingEffort.csv" , header=TRUE)
 head(Trap.effort)
 
 
-
 # trapping effort and captures per year
 trap.effort.yr <- aggregate(Trap.Nights~Year+Site, data=Trap.effort, sum)
-kowari.count.yr <- aggregate(Species~Site+Year, data=kowari.yr, length)
+kowari.count.yr <- aggregate(Species~Site+Year, data=kowari.grid.no.recap.yr, length)
 
 head(kowari.count.yr)
 
-kowari.count.grid.yr <- subset(kowari.count.yr, Site=="PAN GRID"|Site=="WAL GRID")
+#kowari.count.grid.yr <- subset(kowari.count.yr, Site=="PAN GRID"|Site=="WAL GRID")
 
-kowari.effort <- merge(kowari.count.grid.yr, trap.effort.yr, by=c("Year", "Site"))
+kowari.effort <- merge(kowari.count.yr, trap.effort.yr, by=c("Year", "Site"))
 kowari.effort <- cbind(kowari.effort, kowari.TN = kowari.effort$Species/kowari.effort$Trap.Nights*100)
 kowari.effort.site <- data.frame(Year=kowari.effort$Year, Site = kowari.effort$Site, kowari.TN=kowari.effort$kowari.TN)
 
@@ -104,10 +116,6 @@ Y <-kowari.log
 n.pop <- dim(Y)[1]
 n.yrs <- dim(Y)[2]
 
-#empty B matrix
-#B <- matrix( nrow=2,ncol=1)
-#B <-NA
-
 model.location.1ZC.TN <- MARSS.1.B #model function
 
 
@@ -126,23 +134,17 @@ kowariMARSS <- jags(jags.data, inits = NULL, parameters.to.save= jags.params,
                             model.file=model.location.1ZC.TN, n.chains = mcmcchains, n.thin = mcmcthin,
                             n.burnin=mcmcburn, n.iter =(mcmcburn+samples2Save), DIC = TRUE)
 
-# #parallel processing
-# system.time(mulgaraMARSS.1.ZC.TN <- jags.parallel(jags.data, inits = NULL, parameters.to.save= jags.params,
-#                                                   model.file=model.location.1ZC.TN, n.chains = 3, n.thin = 10,
-#                                                   n.burnin=280000, n.iter =300000, DIC = TRUE))
-
-attach.jags(kowariMARSS)
 
 kowariMARSS
 
+attach.jags(kowariMARSS)
 
-#kowari
+#kowari 1 state
 kow.x.ZC.1.TN <- apply(x[,1,],2,mean) #means for each yr for 1 state mulgara
 kow.x.ZC.1.TN.LC <- apply(x[,1,],2,quantile,0.025)
 kow.x.ZC.1.TN.UC <- apply(x[,1,],2,quantile,0.975)
 
 #Back-transform z-scoring of captures (note values are in log space still)
-
 # for converting x out of log space (logged captures at start)
 kow.x.ZC.1.TN.r <-  exp(kow.x.ZC.1.TN)-1 
 kow.x.ZC.1.TN.LC.r <- exp(kow.x.ZC.1.TN.LC)-1
@@ -199,9 +201,6 @@ for(i in 1:length(whichPop.1)) {
 }
 print(Z.1)
 
-#empty B matrix
-#B <- matrix( nrow=2,ncol=2)
-
 model.location.1ZC.TN <- MARSS.2.B #model function
 
 kowariMARSS.2 <- jags(jags.data, inits = NULL, parameters.to.save= jags.params,
@@ -223,7 +222,6 @@ kow.x.2.TN.UC.2 <- apply(x[,2,],2,quantile,0.975)
 detach.jags()
 
 #Back-transform z-scoring of captures (note values are in log space still)
-
 # for converting x out of log space (logged captures at start)
 kow.x.2.TN.r <-  exp(kow.x.2.TN)-1 
 kow.x.2.TN.2.r <-  exp(kow.x.2.TN.2)-1 
@@ -241,7 +239,7 @@ matplot(years, (kow.x.2.TN.r), ylim = c(0,15), type="l",lwd=1, xlab="Year", ylab
   polygon(c(years,rev(years)),c(t(kow.x.2.TN.LC.r), rev( t(kow.x.2.TN.UC.r))) ,
         col = adjustcolor("grey90", 0.9), border = NA)
   polygon(c(years,rev(years)),c(t(kow.x.2.TN.2.LC.r), rev( t(kow.x.2.TN.2.UC.r))) ,
-        col = adjustcolor("blue", 0.4), border = NA)
+        col = adjustcolor("blue", 0.2), border = NA)
 
   matlines(years, (kow.x.2.TN.r), lwd=2)
   matlines(years, (kow.x.2.TN.2.r), lwd=2, col="blue")
@@ -250,7 +248,7 @@ matplot(years, (kow.x.2.TN.r), ylim = c(0,15), type="l",lwd=1, xlab="Year", ylab
   legend("topright",xpd=T, legend=sites, pch=15:23, cex=1, pt.cex = 1,
        col=c("black","blue"),box.col=NA,inset=c(-.33,0))
 
-# dia
+# diagnositics
   mcmcplot(kowariMARSS.2)
   
   caterplot(kowariMARSS.2, "x")
