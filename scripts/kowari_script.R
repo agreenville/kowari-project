@@ -1,6 +1,6 @@
 ####################################
 # Kowari pop dyn and habitat use
-#
+# MARSS analysis
 # Aaron
 #####################################
 
@@ -154,8 +154,8 @@ kow.x.ZC.1.TN.UC.r <- exp(kow.x.ZC.1.TN.UC)-1
 ###############################################
 # adding symbols for sites. Used in paper
 ###############################################
-#tiff(filename = "output/fig_mulgara.tiff", width = 200, height = 160, units = 'mm', res = 300) 
 
+#png(filename = "output/fig_kowari_1State.png", width = 200, height = 160, units = 'mm', res = 300) 
 # 1 state
 par(mfrow = c(1,1), xpd=F, mar=c(5.1, 4.1, 4.1, 11), family = "serif")
 
@@ -164,14 +164,15 @@ matplot(years, (kow.x.ZC.1.TN.r), ylim = c(0,15), type="l",lwd=1, xlab="Year", y
 polygon(c(years,rev(years)),c(t(kow.x.ZC.1.TN.LC.r), rev( t(kow.x.ZC.1.TN.UC.r))) ,
         col = adjustcolor("grey90", 0.9), border = NA)
 matlines(years, (kow.x.ZC.1.TN.r), lwd=1)
-matpoints(years,t(kowari.l),pch=15:23, cex =1, col=1)
+matpoints(years,t(kowari.l),pch=15:23, cex =1, col=c("black", "blue"))
 #mtext("(c)",3, adj=0, line=2)
 
 #mtext("Year",1, adj=0.5, line=3.5, font=2)
 #mtext("Captures per 100 trap nights", 2, adj=0.4,line=3.2, font=2)
 
 legend("topright",xpd=T, legend=sites, pch=15:23, cex=1, pt.cex = 1,
-       col=c(1,1),box.col=NA,inset=c(-.33,0))
+       col=c("black","blue"),box.col=NA,inset=c(-.33,0))
+
 
 #dev.off()
 
@@ -232,6 +233,8 @@ kow.x.2.TN.2.LC.r <- exp(kow.x.2.TN.LC.2)-1
 kow.x.2.TN.2.UC.r <- exp(kow.x.2.TN.UC.2)-1
 
 # 2 states
+
+png(filename = "output/fig_kowari_2State.png", width = 200, height = 160, units = 'mm', res = 300) 
 par(mfrow = c(1,1), xpd=F, mar=c(5.1, 4.1, 4.1, 11), family = "serif")
 
 matplot(years, (kow.x.2.TN.r), ylim = c(0,15), type="l",lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
@@ -248,6 +251,9 @@ matplot(years, (kow.x.2.TN.r), ylim = c(0,15), type="l",lwd=1, xlab="Year", ylab
   legend("topright",xpd=T, legend=sites, pch=15:23, cex=1, pt.cex = 1,
        col=c("black","blue"),box.col=NA,inset=c(-.33,0))
 
+dev.off()  
+  
+  
 # diagnositics
   mcmcplot(kowariMARSS.2)
   
