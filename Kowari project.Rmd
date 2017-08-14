@@ -4,6 +4,7 @@ output: html_notebook
 ---
 ```{r,message=FALSE,include=FALSE}
 source("scripts/kowari_script.R")
+source("scripts/kowari_habitat_script.R")
 ```
 
 *Aaron Greenville*  
@@ -86,6 +87,38 @@ matplot(years, (kow.x.2.TN.r), ylim = c(0,15), type="l",lwd=1, xlab="Year", ylab
 ```
 
 Fig. 2-state model.
+
+## Habitat analysis  
+
+nMDS on habitat variables measured around traps on both grids.  
+
+Habitat_LU_cover  
+**cover code cover description**  
+ 1	< 5%  
+ 2	5 - 25%  
+ 3	25 - 50%  
+ 4	50 - 75%  
+ 5	> 75%  
+ 
+ Gibber Size  	
+ 1	pebble <50mm  
+ 2	cobble 50-250mm  
+ 3	boulder >250mm  
+
+**Habitat variables**
+```{r}
+colnames(kowari.habitat.m)
+```
+
+#### NMDS
+```{r}
+NMDS.hab
+```
+
+```{r}
+ggplot.MDS.fn(NMDS.hab, kowari.factor.df, kowari.factor.df$present)
+```
+
 
 
 
