@@ -71,6 +71,8 @@ unique(habitat.grid$Site)
 # merage kowari captures with habitat
 kowari.habitat <- merge(habitat.grid, kowari.count.id, by.x="GPS_wpt", by.y="WPT" ,all.x = TRUE)
 head(kowari.habitat)
+kowari.habitat <- droplevels(kowari.habitat)
+kowari.habitat[is.na(kowari.habitat)] <- 0
 unique(kowari.habitat$present)
 # replace Na with 0
 kowari.habitat["present"][is.na(kowari.habitat["present"])] <- 0
@@ -130,6 +132,7 @@ ggplot.MDS.fn <- function(NMDS, df.factor, factor){
   ggplot(NMDS.df, aes(x,y, colour= factor))+
     geom_point()+
     theme_classic()+
+    theme(legend.title=element_blank())+
     theme(panel.border = element_rect(colour = "black", fill=NA, size=.5))+
     xlab("NMDS1")+ylab("NMDS2")
 }
@@ -137,3 +140,18 @@ ggplot.MDS.fn <- function(NMDS, df.factor, factor){
 
 ggplot.MDS.fn(NMDS.hab, kowari.factor.df, kowari.factor.df$present)
 
+#######
+# binomal glm
+library(MuMIn)
+
+kowari.glm <- glm(present ~ Site + Gibber.size + Gibber.pavement.cover + Sand.Mound.number +
+                    Sand.Mound.cover + Sand.Spread.cover + Hard.Darainage.Depression.cover   
+                     , data = kowari.habitat, family="binomial", na.action = na.fail)
+
+summary(kowari.glm)
+
+dd<- dredge(kowari.glm, rank = "AICc")
+plot(subset(dd, delta < 2))
+subset(dd, delta < 2)
+
+get.models(dd, subset = delta < 2)
