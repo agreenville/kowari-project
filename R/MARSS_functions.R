@@ -51,9 +51,9 @@ MARSS.1.B <- function(){
   for(i in 1:n.states.1) {
     x[i,1] ~ dnorm(0,0.1);                    # independent priors on initial states
     U[i] ~ dnorm(0,1);
-    #B[i] <- 1;                                # setting B=1
+    B[i] <- 1;                                # setting B=1
     #comment out for density denpendence
-    B[i] ~ dunif(0,1)               #B is b/t 0 and 1. Density depend
+    #B[i] ~ dunif(0,1)               #B is b/t 0 and 1. Density depend
     
     
     for(t in 2:n.yrs) {
