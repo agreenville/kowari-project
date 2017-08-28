@@ -127,9 +127,9 @@ jags.data <- list("Y","n.pop","n.yrs","n.states.1","Z.1") #
 
 # Set MCMC parameters
 mcmcchains <- 3
-mcmcthin <- 10
-mcmcburn <- 6000 
-samples2Save <- 4000
+mcmcthin <- 25
+mcmcburn <- 60000 
+samples2Save <- 40000
 kowariMARSS <- jags(jags.data, inits = NULL, parameters.to.save= jags.params,
                             model.file=model.location.1ZC.TN, n.chains = mcmcchains, n.thin = mcmcthin,
                             n.burnin=mcmcburn, n.iter =(mcmcburn+samples2Save), DIC = TRUE)
