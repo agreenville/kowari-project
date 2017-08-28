@@ -234,7 +234,7 @@ kow.x.2.TN.2.UC.r <- exp(kow.x.2.TN.UC.2)-1
 
 # 2 states
 
-png(filename = "output/fig_kowari_2State.png", width = 200, height = 160, units = 'mm', res = 300) 
+#png(filename = "output/fig_kowari_2State.png", width = 200, height = 160, units = 'mm', res = 300) 
 par(mfrow = c(1,1), xpd=F, mar=c(5.1, 4.1, 4.1, 11), family = "serif")
 
 matplot(years, (kow.x.2.TN.r), ylim = c(0,15), type="l",lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
@@ -251,7 +251,7 @@ matplot(years, (kow.x.2.TN.r), ylim = c(0,15), type="l",lwd=1, xlab="Year", ylab
   legend("topright",xpd=T, legend=sites, pch=15:23, cex=1, pt.cex = 1,
        col=c("black","blue"),box.col=NA,inset=c(-.33,0))
 
-dev.off()  
+#dev.off()  
   
   
 # diagnositics
@@ -262,4 +262,49 @@ dev.off()
   caterplot(kowariMARSS.2, parms = c("U", "B","sigmaQ", "sigmaR"),
             style= "gray")  
 
+############################################################
+# PVA
+# The probability of hitting a threshold, denoted P(xd; te), is typically presented
+# as a curve showing the probabilities of hitting the threshold (y-axis)
+# over diferent time horizons (te) on the x-axis. Extinction probabilities can be
+# computed through Monte Carlo simulations or analytically using Equation 16
+# in Dennis et al. (1991). From MARSS user guide PVA chapter.
+  
+# xe is the threshold and is dened as xe = log(N0=Ne). N0 is the current
+# population estimate and Ne is the threshold. If we are using fractional declines
+# then xe =log(N0=(pdN0))=􀀀log(pd). p(u) is the probability that the threshold
+# is eventually hit  
 
+#library("PVAClone")  
+library("MARSS")
+    
+kowari.pred <-data.frame(years = years, pop = kow.x.ZC.1.TN.r)  
+kowari.data <- data.frame(years = years,
+                          kowari.TN = t(kowari.l)[,2])
+  
+mean.u <- kowariMARSS$BUGSoutput$summary[4] 
+mean.Q <- kowariMARSS$BUGSoutput$summary[6]
+mean.R <- kowariMARSS$BUGSoutput$summary[7]
+Pi <-NA
+    
+pd = 0.1 #means a 90 percent decline
+tyrs = 1:100
+xd = -log(pd)
+p.ever = ifelse(mean.u<=0,1,exp(-2*mean.u*xd/mean.Q)) #Q=sigma2
+for (i in 1:100){
+  Pi[i] = p.ever * pnorm((-xd+abs(mean.u)*tyrs[i])/sqrt(mean.Q*tyrs[i]))+
+    exp(2*xd*abs(mean.u)/mean.Q)*pnorm((-xd-abs(mean.u)*tyrs[i])/sqrt(mean.Q*tyrs[i]))
+  }  
+  
+plot(tyrs, Pi, ylim = c(0,1),bty="l", type="l", col="red",
+     xlab = "Years", ylab="Probabilty of 90% decline")  
+
+CSEGtmufigure(N = 50, u = mean.u, s2p = mean.Q)
+CSEGriskfigure(kowari.pred, te = 100,  threshold = 0.1, 
+               datalogged = FALSE, CI.method = "hessian", CI.sim = 1000)
+
+
+# m1 <- pva(kowari.data$kowari.TN, gompertz("normal"), c(5,10))
+# summary(m1)
+# plot(m1)
+# coef(m1)
