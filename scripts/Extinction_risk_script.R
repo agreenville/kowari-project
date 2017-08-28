@@ -40,8 +40,8 @@ sim.Q = mean.Q #0.02    # process error variance
 sim.R = mean.R #0.05    # non-process error variance
 nYr= 100         # number of years of data to generate
 fracmiss = 0.1  # fraction of years that are missing
-init = kow.x.ZC.1.TN.r[1] #7        # log of initial pop abundance (~1100 individuals)
-nsim = 100
+init = kow.x.ZC.1.TN[1] #7        # log of initial pop abundance (~1100 individuals)
+nsim = 1000
 years = seq(1:nYr)  # col of years
 params = matrix(NA, nrow=(nsim+2), ncol=5, 
                 dimnames=list(c(paste("sim",1:nsim),"mean sim","true"),
@@ -85,7 +85,7 @@ params[nsim+2,]=c(sim.u,sim.u,sim.Q,sim.R,sim.Q)
 ###################################################
 #Needs Example 2 to be run first
 # par(mfrow=c(3,3))
-pd = 0.1; xd = -log(pd)   # decline threshold
+pd = 0.1; xd = -log(pd)   # decline threshold 90%
 te = 100; tyrs = 1:te   # extinction time horizon 
 marss.sim <-matrix(nrow = te, ncol = nsim+1)
 for(j in c(nsim+1,1:nsim)){ # c(10, 1:8)
