@@ -1,6 +1,9 @@
 ---
 title: "NESP Kowari project"
-output: html_notebook
+output:
+  word_document: default
+  pdf_document: default
+  html_notebook: default
 ---
 ```{r,message=FALSE,include=FALSE}
 source("scripts/kowari_script.R")
@@ -119,6 +122,30 @@ NMDS.hab
 ggplot.MDS.fn(NMDS.hab, kowari.factor.df, kowari.factor.df$present)
 ```
 
+#### Multi-model inference: habitat features  
 
+**Binomial glm**
+habitat features predicting kowari presence  
 
+**Full model**
+```{r}
+summary(kowari.glm)
+
+par(mfrow = c(2,2))
+plot(kowari.glm)
+par(mfrow = c(1,1))
+```
+
+**Top models from AICc**  
+delta < 2
+
+```{r}
+plot(subset(dd, delta < 2))
+subset(dd, delta < 2)
+```
+
+**Model averaging top models**
+```{r}
+summary(model.avg(top.model))
+```
 
