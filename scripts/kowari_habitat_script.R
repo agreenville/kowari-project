@@ -144,14 +144,27 @@ ggplot.MDS.fn(NMDS.hab, kowari.factor.df, kowari.factor.df$present)
 # binomal glm
 library(MuMIn)
 
-kowari.glm <- glm(present ~ Site + Gibber.size + Gibber.pavement.cover + Sand.Mound.number +
-                    Sand.Mound.cover + Sand.Spread.cover + Hard.Darainage.Depression.cover   
+kowari.glm <- glm(present ~ Site + scale(Gibber.size) + scale(Gibber.pavement.cover) +
+                    scale(Sand.Mound.number) + scale(Sand.Mound.cover) +
+                    scale(Sand.Spread.cover) + scale(Hard.Darainage.Depression.cover)   
                      , data = kowari.habitat, family="binomial", na.action = na.fail)
 
 summary(kowari.glm)
+
+par(mfrow = c(2,2))
+plot(kowari.glm)
+par(mfrow = c(1,1))
+
 
 dd<- dredge(kowari.glm, rank = "AICc")
 plot(subset(dd, delta < 2))
 subset(dd, delta < 2)
 
-get.models(dd, subset = delta < 2)
+top.model <- get.models(dd, subset = delta < 2)
+
+summary(model.avg(top.model))
+
+confint(model.avg(top.model))
+
+
+
