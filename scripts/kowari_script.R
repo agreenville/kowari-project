@@ -76,7 +76,7 @@ kowari.l <- as.matrix(kowari.l) #converts data frame to matrix
 is.numeric(kowari.l) # needs to equal true
 
 
-years <-unique(Years$Year)
+years.m <-unique(Years$Year)
 sites <- droplevels(unique(kowari.effort.site$Site))
 
 #############################################################################
@@ -159,12 +159,12 @@ kow.x.ZC.1.TN.UC.r <- exp(kow.x.ZC.1.TN.UC)-1
 # 1 state
 par(mfrow = c(1,1), xpd=F, mar=c(5.1, 4.1, 4.1, 11), family = "serif")
 
-matplot(years, (kow.x.ZC.1.TN.r), ylim = c(0,15), type="l",lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
+matplot(years.m, (kow.x.ZC.1.TN.r), ylim = c(0,8), type="l",lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
         bty="l", font.lab=2)
-polygon(c(years,rev(years)),c(t(kow.x.ZC.1.TN.LC.r), rev( t(kow.x.ZC.1.TN.UC.r))) ,
+polygon(c(years.m,rev(years.m)),c(t(kow.x.ZC.1.TN.LC.r), rev( t(kow.x.ZC.1.TN.UC.r))) ,
         col = adjustcolor("grey90", 0.9), border = NA)
-matlines(years, (kow.x.ZC.1.TN.r), lwd=1)
-matpoints(years,t(kowari.l),pch=15:23, cex =1, col=c("black", "blue"))
+matlines(years.m, (kow.x.ZC.1.TN.r), lwd=1)
+matpoints(years.m,t(kowari.l),pch=15:23, cex =1, col=c("black", "blue"))
 #mtext("(c)",3, adj=0, line=2)
 
 #mtext("Year",1, adj=0.5, line=3.5, font=2)
@@ -237,16 +237,16 @@ kow.x.2.TN.2.UC.r <- exp(kow.x.2.TN.UC.2)-1
 #png(filename = "output/fig_kowari_2State.png", width = 200, height = 160, units = 'mm', res = 300) 
 par(mfrow = c(1,1), xpd=F, mar=c(5.1, 4.1, 4.1, 11), family = "serif")
 
-matplot(years, (kow.x.2.TN.r), ylim = c(0,15), type="l",lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
+matplot(years.m, (kow.x.2.TN.r), ylim = c(0,15), type="l",lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
         bty="l", font.lab=2)
-  polygon(c(years,rev(years)),c(t(kow.x.2.TN.LC.r), rev( t(kow.x.2.TN.UC.r))) ,
+  polygon(c(years.m,rev(years.m)),c(t(kow.x.2.TN.LC.r), rev( t(kow.x.2.TN.UC.r))) ,
         col = adjustcolor("grey90", 0.9), border = NA)
-  polygon(c(years,rev(years)),c(t(kow.x.2.TN.2.LC.r), rev( t(kow.x.2.TN.2.UC.r))) ,
+  polygon(c(years.m,rev(years.m)),c(t(kow.x.2.TN.2.LC.r), rev( t(kow.x.2.TN.2.UC.r))) ,
         col = adjustcolor("blue", 0.2), border = NA)
 
-  matlines(years, (kow.x.2.TN.r), lwd=2)
-  matlines(years, (kow.x.2.TN.2.r), lwd=2, col="blue")
-  matpoints(years,t(kowari.l),pch=15:23, cex =1, col=c("black", "blue"))
+  matlines(years.m, (kow.x.2.TN.r), lwd=2)
+  matlines(years.m, (kow.x.2.TN.2.r), lwd=2, col="blue")
+  matpoints(years.m,t(kowari.l),pch=15:23, cex =1, col=c("black", "blue"))
 
   legend("topright",xpd=T, legend=sites, pch=15:23, cex=1, pt.cex = 1,
        col=c("black","blue"),box.col=NA,inset=c(-.33,0))
