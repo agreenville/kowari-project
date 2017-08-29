@@ -88,6 +88,7 @@ params[nsim+2,]=c(sim.u,sim.u,sim.Q,sim.R,sim.Q)
 pd = 0.1; xd = -log(pd)   # decline threshold 90%
 te = 100; tyrs = 1:te   # extinction time horizon 
 marss.sim <-matrix(nrow = te, ncol = nsim+1)
+denn.sim <-matrix(nrow = te, ncol = nsim+1)
 for(j in c(nsim+1,1:nsim)){ # c(10, 1:8)
   real.ex = denn.ex = kal.ex = matrix(nrow=te) 
   
@@ -111,6 +112,9 @@ for(j in c(nsim+1,1:nsim)){ # c(10, 1:8)
   for (i in 1:100){      
     denn.ex[i]=p.ever*pnorm((-xd+abs(u)*tyrs[i])/sqrt(Q*tyrs[i]))+
       exp(2*xd*abs(u)/Q)*pnorm((-xd-abs(u)*tyrs[i])/sqrt(Q*tyrs[i]))
+    
+    denn.sim[,j] <- denn.ex #matrix to store sim runs as colns. nsim+1 is the average of runs 
+    
   } # end i loop
   
   #True parameter values
@@ -136,12 +140,18 @@ for(j in c(nsim+1,1:nsim)){ # c(10, 1:8)
 #############################################
 plot(tyrs, real.ex, xlab="Years", 
      ylab="probability of extinction", ylim=c(0,1), bty="l")
- title("Average over sims")
+ title("Average over 1000 sims")
 #lines(tyrs,denn.ex,type="l",col="red",lwd=2,lty=1) 
 lines(tyrs,marss.sim[,nsim+1],type="l",col="blue",lwd=2,lty=1)
 lines(tyrs, apply(marss.sim[,1:nsim],1,quantile,0.975), lty=2, col="red")
 lines(tyrs, apply(marss.sim[,1:nsim],1,quantile,0.025),lty=2, col="red")
-legend("bottomright",c("1-state model","KalmanEM", "95% CI"),pch=c(1,-1,-1),
-       col=c(1,"blue", "red"),lty=c(-1,1,2),lwd=c(-1,2,1),bty="n")
+
+lines(tyrs,denn.sim[,nsim+1],type="l",col="black",lwd=2,lty=1)
+lines(tyrs, apply(denn.sim[,1:nsim],1,quantile,0.975), lty=2, col="black")
+lines(tyrs, apply(denn.sim[,1:nsim],1,quantile,0.025),lty=2, col="black")
+
+legend("bottomright",c("1-state model","KalmanEM", "Dennis", "KalmanEM 95% CI", "Dennis 95% CI"),
+       pch=c(1,-1,-1, -1, -1), col=c(1,"blue", "black", "red", "black"),
+       lty=c(-1,1,1,2,2),lwd=c(-1,2,2,1,1),bty="n")
 
 
