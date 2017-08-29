@@ -297,7 +297,8 @@ for (i in 1:100){
   }  
   
 plot(tyrs, Pi, ylim = c(0,1),bty="l", type="l", col="red",
-     xlab = "Years", ylab="Probabilty of 90% decline")  
+     xlab = "Years", ylab="Probabilty of 90% decline")
+
 
 CSEGtmufigure(N = 50, u = mean.u, s2p = mean.Q)
 CSEGriskfigure(kowari.pred, te = 100,  threshold = 0.1, 
