@@ -159,7 +159,7 @@ kow.x.ZC.1.TN.UC.r <- exp(kow.x.ZC.1.TN.UC)-1
 # 1 state
 par(mfrow = c(1,1), xpd=F, mar=c(5.1, 4.1, 4.1, 11), family = "serif")
 
-matplot(years.m, (kow.x.ZC.1.TN.r), ylim = c(0,8), type="l",lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
+matplot(years.m, (kow.x.ZC.1.TN.r), xlim=c(1999, 2012), ylim = c(0,8), type="l",lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
         bty="l", font.lab=2)
 polygon(c(years.m,rev(years.m)),c(t(kow.x.ZC.1.TN.LC.r), rev( t(kow.x.ZC.1.TN.UC.r))) ,
         col = adjustcolor("grey90", 0.9), border = NA)
@@ -173,7 +173,7 @@ matpoints(years.m,t(kowari.l),pch=15:23, cex =1, col=c("black", "blue"))
 legend("topright",xpd=T, legend=sites, pch=15:23, cex=1, pt.cex = 1,
        col=c("black","blue"),box.col=NA,inset=c(-.33,0))
 
-
+par(mfrow = c(1,1), xpd=NA, mar=c(5, 4, 4, 2) + 0.1, family = "")
 #dev.off()
 
 
@@ -250,7 +250,7 @@ matplot(years.m, (kow.x.2.TN.r), ylim = c(0,15), type="l",lwd=1, xlab="Year", yl
 
   legend("topright",xpd=T, legend=sites, pch=15:23, cex=1, pt.cex = 1,
        col=c("black","blue"),box.col=NA,inset=c(-.33,0))
-
+par(mfrow = c(1,1), xpd=NA, mar=c(5, 4, 4, 2) + 0.1, family = "")
 #dev.off()  
   
   
