@@ -275,11 +275,10 @@ par(mfrow = c(1,1), xpd=NA, mar=c(5, 4, 4, 2) + 0.1, family = "")
 # then xe =log(N0=(pdN0))=􀀀log(pd). p(u) is the probability that the threshold
 # is eventually hit  
 
-#library("PVAClone")  
 library("MARSS")
     
-kowari.pred <-data.frame(years = years, pop = kow.x.ZC.1.TN.r)  
-kowari.data <- data.frame(years = years,
+kowari.pred <-data.frame(years = years.m, pop = kow.x.ZC.1.TN.r)  
+kowari.data <- data.frame(years = years.m,
                           kowari.TN = t(kowari.l)[,2])
   
 mean.u <- kowariMARSS$BUGSoutput$summary[4] 
@@ -305,7 +304,4 @@ CSEGriskfigure(kowari.pred, te = 100,  threshold = 0.1,
                datalogged = FALSE, CI.method = "hessian", CI.sim = 1000)
 
 
-# m1 <- pva(kowari.data$kowari.TN, gompertz("normal"), c(5,10))
-# summary(m1)
-# plot(m1)
-# coef(m1)
+
