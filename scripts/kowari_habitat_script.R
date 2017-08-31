@@ -102,29 +102,27 @@ library(vegan)
 library(parallel)
 set.seed(2)
 
- 
+
 NMDS.hab <- metaMDS(kowari.habitat.m, distance="euclidean",  # Our community-by-species matrix
                  trymax = 20, k=3,  parallel = 6) # The number of reduced dimensions
-NMDS.hab
- 
-plot(NMDS.hab)
-stressplot(NMDS.hab)
+# NMDS.hab
+# 
+# plot(NMDS.hab)
+# stressplot(NMDS.hab)
+# 
+# # ordiplot(NMDS)
+# #
+# # ordiplot(NMDS.hab,type="n")
+# #ordihull(NMDS.hab,groups=kowari.factor,draw="polygon",col="grey90",label=T)
+# # orditorp(NMDS.hab,display="species",col="red",air=0.01)
+# 
+#  ordiellipse(NMDS.hab, groups=kowari.factor,label=T, col=c(1:6))
+# #
+# ordiplot(NMDS.hab,type="n")
+# orditorp(NMDS.hab,display="sites", col="red",air=0.01)
+# ordiellipse(NMDS.hab, groups=kowari.factor,label=T, col=c(1:2))
+# #
 
-# ordiplot(NMDS)
-# 
- ordiplot(NMDS.hab,type="n")
-#ordihull(NMDS.hab,groups=kowari.factor,draw="polygon",col="grey90",label=T)
- orditorp(NMDS.hab,display="species",col="red",air=0.01)
-
- ordiellipse(NMDS.hab, groups=kowari.factor,label=T, col=c(1:6))
-# 
-ordiplot(NMDS.hab,type="n")
-orditorp(NMDS.hab,display="sites", col="red",air=0.01)
-ordiellipse(NMDS.hab, groups=kowari.factor,label=T, col=c(1:2))
-# 
-# ordiplot(NMDS,type="n")
-# orditorp(NMDS,display="species",col="red",air=0.01)
-# ordiellipse(NMDS, groups=no.threat.sp.status$no.threats,label=T, col=c(1:6))
 
 # ggplot version
 ggplot.MDS.fn <- function(NMDS, df.factor, factor){
@@ -151,14 +149,14 @@ kowari.glm <- glm(present ~ Site + scale(Gibber.size) + scale(Gibber.pavement.co
 
 summary(kowari.glm)
 
-par(mfrow = c(2,2))
-plot(kowari.glm)
-par(mfrow = c(1,1))
+# par(mfrow = c(2,2))
+# plot(kowari.glm)
+# par(mfrow = c(1,1))
 
 
 dd<- dredge(kowari.glm, rank = "AICc")
-plot(subset(dd, delta < 2))
-subset(dd, delta < 2)
+# plot(subset(dd, delta < 2))
+# subset(dd, delta < 2)
 
 top.model <- get.models(dd, subset = delta < 2)
 

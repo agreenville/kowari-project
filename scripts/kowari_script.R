@@ -180,12 +180,12 @@ par(mfrow = c(1,1), xpd=NA, mar=c(5, 4, 4, 2) + 0.1, family = "")
 detach.jags()
 
 
-mcmcplot(kowariMARSS)
-
-caterplot(kowariMARSS, "x")
-caterplot(kowariMARSS, "A")
-caterplot(kowariMARSS, parms = c("U", "B","sigmaQ", "sigmaR"),
-          style= "gray")
+# mcmcplot(kowariMARSS)
+# 
+# caterplot(kowariMARSS, "x")
+# caterplot(kowariMARSS, "A")
+# caterplot(kowariMARSS, parms = c("U", "B","sigmaQ", "sigmaR"),
+#           style= "gray")
 
 #############################################################################
 # kowari 100TN data
@@ -255,12 +255,12 @@ par(mfrow = c(1,1), xpd=NA, mar=c(5, 4, 4, 2) + 0.1, family = "")
   
   
 # diagnositics
-  mcmcplot(kowariMARSS.2)
-  
-  caterplot(kowariMARSS.2, "x")
-  caterplot(kowariMARSS.2, "A")
-  caterplot(kowariMARSS.2, parms = c("U", "B","sigmaQ", "sigmaR"),
-            style= "gray")  
+  # mcmcplot(kowariMARSS.2)
+  # 
+  # caterplot(kowariMARSS.2, "x")
+  # caterplot(kowariMARSS.2, "A")
+  # caterplot(kowariMARSS.2, parms = c("U", "B","sigmaQ", "sigmaR"),
+  #           style= "gray")  
 
 ############################################################
 # PVA
@@ -295,13 +295,13 @@ for (i in 1:100){
     exp(2*xd*abs(mean.u)/mean.Q)*pnorm((-xd-abs(mean.u)*tyrs[i])/sqrt(mean.Q*tyrs[i]))
   }  
   
-plot(tyrs, Pi, ylim = c(0,1),bty="l", type="l", col="red",
-     xlab = "Years", ylab="Probabilty of 90% decline")
+#plot(tyrs, Pi, ylim = c(0,1),bty="l", type="l", col="red",
+#     xlab = "Years", ylab="Probabilty of 90% decline")
 
 
-CSEGtmufigure(N = 50, u = mean.u, s2p = mean.Q)
-CSEGriskfigure(kowari.pred, te = 100,  threshold = 0.1, 
-               datalogged = FALSE, CI.method = "hessian", CI.sim = 1000)
+#CSEGtmufigure(N = 50, u = mean.u, s2p = mean.Q)
+#CSEGriskfigure(kowari.pred, te = 100,  threshold = 0.1, 
+#               datalogged = FALSE, CI.method = "hessian", CI.sim = 1000)
 
 
 
