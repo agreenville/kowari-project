@@ -12,15 +12,15 @@ library(MASS)
 library(R2jags)
 library(rjags)
 library(runjags)
-library(mcmcplots)
+#library(mcmcplots)
 
 
 
 #################################################################################
 # 1 state model
+# two sub-pops
 # 
 # 
-# density dependence, B b/w 0 and 1
 ##############################################################################
 
 MARSS.1.B <- function(){
@@ -108,7 +108,7 @@ MARSS.1.B <- function(){
 ####################\
 # 2 state model
 #
-# density dependence, B b/w 0 and 1
+# two sub-pops
 ##############################################################################
 
 MARSS.2.B <- function(){
@@ -193,3 +193,111 @@ MARSS.2.B <- function(){
   #Dsum <- sum(sqdiff);
   
 }
+
+
+#################################################################################
+# 1 state model
+# one sub-pops
+# 
+# 
+##############################################################################
+
+MARSS.bayes.1 <- function(){
+  
+  # PRIORS
+  tauQ[1] ~ dgamma(0.01,0.01);
+  sigmaQ[1] <- 1/sqrt(tauQ[1]); # convert from precision to sd
+  tauR[1] ~ dgamma(0.01,0.01); 
+  sigmaR[1] <- 1/sqrt(tauR[1]); # convert from precision to sd
+  
+  for(i in 2:n.states.1) {
+    # uncomment out these next two lines for independent Qs
+    tauQ[i] ~ dgamma(0.01,0.01);
+    sigmaQ[i] <- 1/sqrt(tauQ[i]);
+    #tauQ[i] <- tauQ[1];             #diagonal and equal
+    #sigmaQ[i] <- 1/sqrt(tauQ[i]);
+  }
+  
+  for(i in 2:n.pop) {
+    # uncomment out these next two lines for independent Rs
+    #tauR[i] ~ dgamma(0.01,0.01);
+    #sigmaR[i] <- 1/sqrt(tauR[i]);
+    tauR[i] <- tauR[1];               #diagonal and equal
+    sigmaR[i] <- 1/sqrt(tauR[i]);
+  }
+  
+  # PROCESS MODEL
+  for(i in 1:n.states.1) {
+    x[i,1] ~ dnorm(0,0.1);                    # independent priors on initial states
+    U[i] ~ dnorm(0,1);
+    B[i] <- 1;                                # setting B=1
+    #comment out for density denpendence
+    #B[i] ~ dunif(0,1)               #B is b/t 0 and 1. Density depend
+    
+    
+    for(t in 2:n.yrs) {
+      predx[i,t] <- B[i]*x[i,t-1] + U[i];       #X = BX + U
+      x[i,t] ~ dnorm(predx[i,t],tauQ[i]);
+    }
+  }
+  
+  # DATA / LIKELIHOOD MODEL (Obs model)
+  A[1] <- 0;
+  #A[2] ~ dnorm(0,1);
+  
+  for(i in 1:n.pop) {
+    for(t in 1:n.yrs) {
+      # inprod does matrix multiplication
+      predy[t] <- inprod(Z.1[i,],x[,t]) + A[i];               #Y=ZX+A        
+      lambda[t] ~ dnorm(predy[t], tauR[i]);                #obs error only
+      
+      Y[t] ~ dnorm(lambda[t], tauR[i]);
+      
+      #For Posterior predictive loss
+      #Generate replicated data
+      #Y.rep[i,t] ~ dpois(exp(log.lambda[i,t])); 
+      
+      #Compute squared difference b/t observed and replicated data
+      #sqdiff[i,t] <- pow(Y[i,t]-Y.rep[i,t], 2);
+    }
+    
+  }
+  #For posterior predictive loss, sum squared differences across all years
+  #Dsum <- sum(sqdiff);
+  
+}
+
+##################################
+# function for bays marss sim
+# 1 state model
+# no density dependency
+
+bayes.marss.1.fn <- function(y){
+  Y <- y
+  n.pop <- 1 #dim(Y)[1]
+  n.yrs <- nYr #dim(Y)[2]
+  whichPop <- 1 #rep(1,n.pop)
+  n.states.1 <- 1 #max(whichPop)
+  
+  Z.1 <- matrix(1) #matrix(0,2,n.states.1)
+  #for(i in 1:length(whichPop)) {
+  #  Z.1[i,whichPop[i]] = 1
+  #}
+  
+  model.location.1ZC.TN <- MARSS.bayes.1 #MARSS.1.B #model function
+  jags.params <- c("x", "sigmaQ","sigmaR", "B", "U", "A") 
+  jags.data <- list("Y","n.pop","n.yrs","n.states.1","Z.1")
+  
+  # Set MCMC parameters
+  mcmcchains <- 3
+  mcmcthin <- 25
+  mcmcburn <- 60000 
+  samples2Save <- 40000
+  
+  jags.parallel(jags.data, inits = NULL, parameters.to.save= jags.params,
+       model.file=model.location.1ZC.TN, n.chains = mcmcchains, n.thin = mcmcthin,
+       n.burnin=mcmcburn, n.iter =(mcmcburn+samples2Save), DIC = TRUE)
+}
+
+
+
