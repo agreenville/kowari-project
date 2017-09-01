@@ -207,7 +207,7 @@ extinct.graph.fn <-function(out, lab){
 par(mfrow=c(3,1), mar=c(5.1, 4.1, 4.1, 9.5))
 extinct.graph.fn(extinct.80, "CR: 80% population decline")
   abline(h=1, lty=2, col="blue", xpd=F)
-  legend("topright",c("1-state model","KalmanEM", "Dennis", "KalmanEM 95% CI", "Dennis 95% CI"),
+  legend("topright",c("1-state model","MARSS", "Dennis", "MARSS 95% CI", "Dennis 95% CI"),
        pch=c(1,-1,-1, -1, -1), col=c(1,"red", "black", "red", "black"),
        lty=c(-1,1,1,2,2),lwd=c(-1,2,2,1,1),bty="n",xpd=T, inset=c(-0.44,-0.1), box.col="white")
   
