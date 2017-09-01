@@ -7,7 +7,7 @@
 #PBS -P RDS-FSC-DERG001-RW
 
 # For R need to run on single CPU
-#PBS -l select=1:ncpus=8:mem=16GB
+#PBS -l select=1:ncpus=4:mem=6GB
 
 # set your minimum acceptable walltime=hours:minutes:seconds
 #PBS -l walltime=72:00:00
