@@ -6,10 +6,10 @@
 
 # load packages and graphing functions
 
-library(ggplot2)
-library(grid)
-library(gridExtra)
-library(psych)
+#library(ggplot2)
+#library(grid)
+#library(gridExtra)
+#library(psych)
 require(reshape)
 library(plyr)
 library(mcmcplots)
