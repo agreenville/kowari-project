@@ -98,6 +98,8 @@ print(Z.1)
 # Y captures/ 100 TN
 kowari.log <- log(kowari.l+1)
 
+# save data for HPC
+save(kowari.log, file="data/HPC_kowari_log.Rdata")
 
 #z score captures/100 N
 #mulgaraTN.mean = apply(mulgaralm.log,1,mean, na.rm=T)
@@ -299,9 +301,17 @@ for (i in 1:100){
 #     xlab = "Years", ylab="Probabilty of 90% decline")
 
 
+
 #CSEGtmufigure(N = 50, u = mean.u, s2p = mean.Q)
 #CSEGriskfigure(kowari.pred, te = 100,  threshold = 0.1, 
 #               datalogged = FALSE, CI.method = "hessian", CI.sim = 1000)
 
 
+# see extinction_risk_script for simulations, bootstrapping and PVA's
 
+############
+# MARSS package
+
+Z=factor(c(1,1))
+kow.marss.1 <- MARSS(kowari.log, model=list(Z=Z))
+MARSSparamCIs(kow.marss.1)
