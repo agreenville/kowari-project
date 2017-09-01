@@ -77,7 +77,7 @@ sim.R = mean.R     # non-process error variance
 nYr= 100         # number of years of data to generate
 fracmiss = 0.1  # fraction of years that are missing
 init = kow.x.ZC.1.TN[1] #7        # log of initial pop abundance 
-nsim = 10
+nsim = 10000
 years = seq(1:nYr)  # col of years
 params = matrix(NA, nrow=(nsim+2), ncol=5, 
                 dimnames=list(c(paste("sim",1:nsim),"mean sim","true"),
