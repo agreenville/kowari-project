@@ -3,6 +3,7 @@ library("MARSS")
 
 ###################################################
 ### code chunk number 6: Cs1_Exercise1
+# for graphing each sim run.
 ###################################################
 # par(mfrow=c(3,3))
 # sim.u = mean.u #-0.05 
@@ -91,63 +92,9 @@ params[nsim+2,]=c(sim.u,sim.u,sim.Q,sim.R,sim.Q)
 # Dennis diffusion process esitmates of extinction risk
 ###################################################
 #Needs Example 2 to be run first
-# par(mfrow=c(3,3))
-# pd = 0.1; xd = -log(pd)   # decline threshold 90% = 0.1
-# te = 10; tyrs = 1:te   # extinction time horizon 
-# marss.sim <-matrix(nrow = te, ncol = nsim+1)
-# denn.sim <-matrix(nrow = te, ncol = nsim+1)
-# for(j in c(nsim+1,1:nsim)){ # c(10, 1:8)
-#   real.ex = denn.ex = kal.ex = matrix(nrow=te) 
-#   
-#   #MARSS parameter estimates
-#   u=params[j,1];   Q=params[j,3]
-#   if(Q==0) Q=1e-4  #just so the extinction calc doesn't choke
-#   p.ever = ifelse(u<=0,1,exp(-2*u*xd/Q))
-#   for (i in 1:te){      
-#     if(is.finite(exp(2*xd*abs(u)/Q))){
-#       sec.part = exp(2*xd*abs(u)/Q)*pnorm((-xd-abs(u)* tyrs[i])/sqrt(Q*tyrs[i]))
-#     }else sec.part=0      
-#     kal.ex[i]=p.ever*pnorm((-xd+abs(u)*tyrs[i])/sqrt(Q*tyrs[i]))+sec.part
-#     
-#     marss.sim[,j] <- kal.ex #matrix to store sim runs. 10th (i.e. nsim +1) is average
-#     
-#   } # end i loop
-#   
-#   #Dennis et al 1991 parameter estimates
-#   u=params[j,2];   Q=params[j,5]
-#   p.ever = ifelse(u<=0,1,exp(-2*u*xd/Q)) 
-#   for (i in 1:te){      
-#     denn.ex[i]=p.ever*pnorm((-xd+abs(u)*tyrs[i])/sqrt(Q*tyrs[i]))+
-#       exp(2*xd*abs(u)/Q)*pnorm((-xd-abs(u)*tyrs[i])/sqrt(Q*tyrs[i]))
-#     
-#     denn.sim[,j] <- denn.ex #matrix to store sim runs as colns. nsim+1 is the average of runs 
-#     
-#   } # end i loop
-#   
-#   #True parameter values
-#   u=sim.u;   Q=sim.Q
-#   p.ever = ifelse(u<=0,1,exp(-2*u*xd/Q)) 
-#   for (i in 1:te){      
-#     real.ex[i]=p.ever*pnorm((-xd+abs(u)*tyrs[i])/sqrt(Q*tyrs[i]))+
-#       exp(2*xd*abs(u)/Q)*pnorm((-xd-abs(u)*tyrs[i])/sqrt(Q*tyrs[i]))
-#   } # end i loop
-#   
-# #   #plot it
-# #   plot(tyrs, real.ex, xlab="time steps into future", 
-# #        ylab="probability of extinction", ylim=c(0,1), bty="l")
-# #   if(j<=8) title(paste("simulation ",j) )
-# #   if(j==10) title("average over sims")
-# #   lines(tyrs,denn.ex,type="l",col="red",lwd=2,lty=1) 
-# #   lines(tyrs,kal.ex,type="l",col="blue",lwd=2,lty=2)
-#    }
-# # legend("bottomright",c("True","Dennis","KalmanEM"),pch=c(1,-1,-1),
-# #        col=c(1,2,"blue"),lty=c(-1,1,2),lwd=c(-1,2,2),bty="n")
-# # par(mfrow=c(1,1))
-# pd = 0.1; xd = -log(pd)   # decline threshold 90% = 0.1
-# te = 10; tyrs = 1:te   # extinction time horizon 
 
-
-## function for the above
+########################################################
+## function for diffusion process esitmates of extinction risk.
 extinc.risk.fn <- function(pd, te,sim.u, sim.Q, params){
   xd = -log(pd) 
   tyrs = 1:te 
@@ -191,6 +138,8 @@ extinc.risk.fn <- function(pd, te,sim.u, sim.Q, params){
 }
 return(list(tyrs, marss.sim, denn.sim, real.ex ))
 } # end function
+########################################
+# calc PVA's
 
 # 90% prob of pop decline over 100 years
 extinct.100.90 <- extinc.risk.fn(pd=0.1, te = 100, sim.u=sim.u, sim.Q = sim.Q, params = params)
@@ -216,24 +165,6 @@ extinct.E.VU <- extinc.risk.fn(pd=0.01, te = 100, sim.u=sim.u, sim.Q = sim.Q, pa
 # graphing
 #########################################
 
-# plot(tyrs, real.ex, xlab="Years", 
-#      ylab="Probability of 90% population decline", ylim=c(0,1), bty="l")
-#  title("Average over 1000 sims")
-# #lines(tyrs,denn.ex,type="l",col="red",lwd=2,lty=1) 
-# lines(tyrs,marss.sim[,nsim+1],type="l",col="red",lwd=2,lty=1)
-# lines(tyrs, apply(marss.sim[,1:nsim],1,quantile,0.975), lty=2, col="red")
-# lines(tyrs, apply(marss.sim[,1:nsim],1,quantile,0.025),lty=2, col="red")
-# 
-# lines(tyrs,denn.sim[,nsim+1],type="l",col="black",lwd=2,lty=1)
-# lines(tyrs, apply(denn.sim[,1:nsim],1,quantile,0.975), lty=2, col="black")
-# lines(tyrs, apply(denn.sim[,1:nsim],1,quantile,0.025),lty=2, col="black")
-# 
-# legend("bottomright",c("1-state model","KalmanEM", "Dennis", "KalmanEM 95% CI", "Dennis 95% CI"),
-#        pch=c(1,-1,-1, -1, -1), col=c(1,"red", "black", "red", "black"),
-#        lty=c(-1,1,1,2,2),lwd=c(-1,2,2,1,1),bty="n")
-
-
-
 # function for graphing
 
 extinct.graph.fn <-function(out, lab){
@@ -247,11 +178,12 @@ extinct.graph.fn <-function(out, lab){
   lines(out[[1]],out[[3]][,nsim+1],type="l",col="black",lwd=2,lty=1)
   lines(out[[1]], apply(out[[3]][,1:nsim],1,quantile,0.975), lty=2, col="black")
   lines(out[[1]], apply(out[[3]][,1:nsim],1,quantile,0.025),lty=2, col="black")
-  }
-###################################################
+}
+
+
 # IUCN criterion A
 
-png(filename = "output/fig_PVA_Bayes_CrA.png", width = 120, height = 170, units = 'mm', res = 300) 
+#png(filename = "output/fig_PVA_Bayes_CrA.png", width = 120, height = 170, units = 'mm', res = 300) 
 
 par(mfrow=c(3,1), mar=c(5.1, 4.1, 4.1, 9.5))
 extinct.graph.fn(extinct.80, "CR: 80% population decline")
@@ -268,12 +200,12 @@ par(mfrow = c(1,1), mar=c(5, 4, 4, 2) + 0.1)
 mtext("Probability of population decline", 2, line=3)
 mtext("Years", 1, line=3)
 
-dev.off()  
+#dev.off()  
 
 
 # criterion E
 
-png(filename = "output/fig_PVA_bayes_CrE.png", width = 120, height = 170, units = 'mm', res = 300) 
+#png(filename = "output/fig_PVA_bayes_CrE.png", width = 120, height = 170, units = 'mm', res = 300) 
 
 par(mfrow=c(3,1), mar=c(5.1, 4.1, 4.1, 9.5))
 extinct.graph.fn(extinct.E.CR, "CR: 50% chance of extinction in 10 years")
@@ -289,7 +221,7 @@ par(mfrow = c(1,1), mar=c(5, 4, 4, 2) + 0.1)
 mtext("Probability of 99% population decline", 2, line=3)
 mtext("Years", 1, line=3)
 
-dev.off()  
+#dev.off()  
 
 
 
