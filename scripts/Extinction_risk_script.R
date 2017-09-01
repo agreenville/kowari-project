@@ -50,6 +50,7 @@
 # process and obs error from MARSS 1-state model in kowari_script.
 # Dennis is process error only.
 # MARSS has both process and obs error.
+# sim with 10% missing data
 # up-dated for Bayesian methods. See HPC pop sim script to run
 # 1000s of simulations.
 ###################################################
@@ -127,7 +128,7 @@ extinc.risk.fn <- function(pd, te,sim.u, sim.Q, params){
     }else sec.part=0      
     kal.ex[i]=p.ever*pnorm((-xd+abs(u)*tyrs[i])/sqrt(Q*tyrs[i]))+sec.part
     
-    marss.sim[,j] <- kal.ex #matrix to store sim runs. 10th (i.e. nsim +1) is average
+    marss.sim[,j] <- kal.ex #matrix to store sim runs. i.e. nsim +1 is average
     
   } # end i loop
   
