@@ -34,3 +34,7 @@ module load jags/4.2.0
 
 # The command to actually run the job
 R --vanilla < HPC_pop_sim_script.R 
+
+
+# Don't forget to run this on both pbs-script and R script files
+# dos2unix filename
