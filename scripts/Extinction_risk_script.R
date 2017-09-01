@@ -1,9 +1,20 @@
+#######################################################
+# Dennis diffusion process esitmates of extinction risk
+# Bayesian MARSS approach used to account for process
+# and observation error.
+#
+# Modified from MARSS userguide.
+# Aaron Greenville
+#
+#######################################################
 
-library("MARSS")
+
+#library("MARSS") #uncomment out for ML estimates
 
 ###################################################
 ### code chunk number 6: Cs1_Exercise1
 # for graphing each sim run.
+# Only plots 9 sim runs
 ###################################################
 # par(mfrow=c(3,3))
 # sim.u = mean.u #-0.05 
@@ -42,59 +53,62 @@ library("MARSS")
 # up-dated for Bayesian methods. See HPC pop sim script to run
 # 1000s of simulations.
 ###################################################
-sim.u = mean.u #-0.05   # growth rate
-sim.Q = mean.Q #0.02    # process error variance
-sim.R = mean.R #0.05    # non-process error variance
-nYr= 100         # number of years of data to generate
-fracmiss = 0.1  # fraction of years that are missing
-init = kow.x.ZC.1.TN[1] #7        # log of initial pop abundance 
-nsim = 1000
-years = seq(1:nYr)  # col of years
-params = matrix(NA, nrow=(nsim+2), ncol=5, 
-                dimnames=list(c(paste("sim",1:nsim),"mean sim","true"),
-                              c("kem.U","den91.U","kem.Q","kem.R", "den91.Q")))
-x.ts = matrix(NA,nrow=nsim,ncol=nYr)  # ts w/o measurement error 
-y.ts = matrix(NA,nrow=nsim,ncol=nYr)  # ts w/ measurement error
-for(i in 1:nsim){ 
-  x.ts[i,1]=init			
-  for(t in 2:nYr){	
-    x.ts[i,t] = x.ts[i,t-1]+sim.u+rnorm(1,mean=0,sd=sqrt(sim.Q))}
-  for(t in 1:nYr){ 
-    y.ts[i,t] = x.ts[i,t]+rnorm(1,mean=0,sd=sqrt(sim.R))}
-  missYears = sample(years[2:(nYr-1)], floor(fracmiss*nYr),
-                     replace = FALSE) 
-  y.ts[i,missYears]=NA
-  
-  #MARSS estimates 
-  kem = bayes.marss.1.fn(y.ts[i,])   #MARSS(y.ts[i,], silent=TRUE)
-  #type=vector outputs the estimates as a vector instead of a list
-  params[i,c(1,3,4)] = unlist(kem$BUGSoutput$mean[c(3,5,6)]) #params[i,c(1,3,4)] = coef(kem,type="vector")[c(2,3,1)]
-  
-  #Dennis et al 1991 estimates
-  den.years = years[!is.na(y.ts[i,])]  # the non missing years
-  den.yts = y.ts[i,!is.na(y.ts[i,])]   # the non missing counts
-  den.n.yts = length(den.years) 	
-  delta.pop = rep(NA, den.n.yts-1 ) # transitions
-  tau = rep(NA, den.n.yts-1 )       # time step lengths
-  for (t in 2:den.n.yts ){
-    delta.pop[t-1] = den.yts[t] - den.yts[t-1] # transitions
-    tau[t-1] =  den.years[t]-den.years[t-1]    # time step length
-  } # end i loop
-  den91 <- lm(delta.pop ~ -1 + tau) # -1 specifies no intercept
-  params[i,c(2,5)] = c(den91$coefficients, var(resid(den91))) 
-}
-params[nsim+1,]=apply(params[1:nsim,],2,mean)
-params[nsim+2,]=c(sim.u,sim.u,sim.Q,sim.R,sim.Q)
+
+# # uncomment below to run pop sims. Otherwise load results from HPC
+# 
+# sim.u = mean.u   # growth rate
+# sim.Q = mean.Q   # process error variance
+# sim.R = mean.R    # non-process error variance
+# nYr= 100         # number of years of data to generate
+# fracmiss = 0.1  # fraction of years that are missing
+# init = kow.x.ZC.1.TN[1] #7        # log of initial pop abundance 
+# nsim = 1000
+# years = seq(1:nYr)  # col of years
+# params = matrix(NA, nrow=(nsim+2), ncol=5, 
+#                 dimnames=list(c(paste("sim",1:nsim),"mean sim","true"),
+#                               c("kem.U","den91.U","kem.Q","kem.R", "den91.Q")))
+# x.ts = matrix(NA,nrow=nsim,ncol=nYr)  # ts w/o measurement error 
+# y.ts = matrix(NA,nrow=nsim,ncol=nYr)  # ts w/ measurement error
+# for(i in 1:nsim){ 
+#   x.ts[i,1]=init			
+#   for(t in 2:nYr){	
+#     x.ts[i,t] = x.ts[i,t-1]+sim.u+rnorm(1,mean=0,sd=sqrt(sim.Q))}
+#   for(t in 1:nYr){ 
+#     y.ts[i,t] = x.ts[i,t]+rnorm(1,mean=0,sd=sqrt(sim.R))}
+#   missYears = sample(years[2:(nYr-1)], floor(fracmiss*nYr),
+#                      replace = FALSE) 
+#   y.ts[i,missYears]=NA
+#   
+#   #MARSS estimates 
+#   kem = bayes.marss.1.fn(y.ts[i,])   #MARSS(y.ts[i,], silent=TRUE)
+#   #type=vector outputs the estimates as a vector instead of a list
+#   params[i,c(1,3,4)] = unlist(kem$BUGSoutput$mean[c(3,5,6)]) #params[i,c(1,3,4)] = coef(kem,type="vector")[c(2,3,1)]
+#   
+#   #Dennis et al 1991 estimates
+#   den.years = years[!is.na(y.ts[i,])]  # the non missing years
+#   den.yts = y.ts[i,!is.na(y.ts[i,])]   # the non missing counts
+#   den.n.yts = length(den.years) 	
+#   delta.pop = rep(NA, den.n.yts-1 ) # transitions
+#   tau = rep(NA, den.n.yts-1 )       # time step lengths
+#   for (t in 2:den.n.yts ){
+#     delta.pop[t-1] = den.yts[t] - den.yts[t-1] # transitions
+#     tau[t-1] =  den.years[t]-den.years[t-1]    # time step length
+#   } # end i loop
+#   den91 <- lm(delta.pop ~ -1 + tau) # -1 specifies no intercept
+#   params[i,c(2,5)] = c(den91$coefficients, var(resid(den91))) 
+# }
+# params[nsim+1,]=apply(params[1:nsim,],2,mean)
+# params[nsim+2,]=c(sim.u,sim.u,sim.Q,sim.R,sim.Q)
 
 
 ###################################################
 ### code chunk number 20: Cs1_Exercise3
 # Dennis diffusion process esitmates of extinction risk
 ###################################################
-#Needs Example 2 to be run first
+#Needs Example 2 to be run first or load HPC results
 
 ########################################################
-## function for diffusion process esitmates of extinction risk.
+## function for diffusion process estimates of extinction risk.
 extinc.risk.fn <- function(pd, te,sim.u, sim.Q, params){
   xd = -log(pd) 
   tyrs = 1:te 
@@ -141,6 +155,9 @@ return(list(tyrs, marss.sim, denn.sim, real.ex ))
 
 ########################################
 # calc PVA's
+
+# Uncomment to load HPC results. 10 000 sims
+load("workspaces/HPC_pop_sims.RData")
 
 # 90% prob of pop decline over 100 years
 extinct.100.90 <- extinc.risk.fn(pd=0.1, te = 100, sim.u=sim.u, sim.Q = sim.Q, params = params)
@@ -210,7 +227,7 @@ mtext("Years", 1, line=3)
 
 par(mfrow=c(3,1), mar=c(5.1, 4.1, 4.1, 9.5))
 extinct.graph.fn(extinct.E.CR, "CR: 50% chance of extinction in 10 years")
-  legend("topright",c("1-state model","KalmanEM", "Dennis", "KalmanEM 95% CI", "Dennis 95% CI"),
+  legend("topright",c("1-state model","MARSS", "Dennis", "MARSS 95% CI", "Dennis 95% CI"),
        pch=c(1,-1,-1, -1, -1), col=c(1,"red", "black", "red", "black"),
        lty=c(-1,1,1,2,2),lwd=c(-1,2,2,1,1),bty="n", xpd=T, inset=c(-0.44,-0.1))
     abline(h=0.5, lty=2, col="blue",  xpd=F)
