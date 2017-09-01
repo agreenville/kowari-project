@@ -39,14 +39,9 @@ jags.params <- c("x", "sigmaQ","sigmaR", "B", "U", "A")
 jags.data <- list("Y","n.pop","n.yrs","n.states.1","Z.1") #     
 
 
-# Set MCMC parameters
-mcmcchains <- 3
-mcmcthin <- 25
-mcmcburn <- 60000 
-samples2Save <- 40000
 kowariMARSS <- jags.parallel(jags.data, inits = NULL, parameters.to.save= jags.params,
-                    model.file=model.location.1ZC.TN, n.chains = mcmcchains, n.thin = mcmcthin,
-                    n.burnin=mcmcburn, n.iter =(mcmcburn+samples2Save), DIC = TRUE)
+                    model.file=model.location.1ZC.TN, n.chains = 3, n.thin = 25,
+                    n.burnin=60000, n.iter =100000, DIC = TRUE)
 
 
 kowariMARSS
