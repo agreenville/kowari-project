@@ -38,6 +38,8 @@ library("MARSS")
 # process and obs error from MARSS 1-state model in kowari_script.
 # Dennis is process error only.
 # MARSS has both process and obs error.
+# up-dated for Bayesian methods. See HPC pop sim script to run
+# 1000s of simulations.
 ###################################################
 sim.u = mean.u #-0.05   # growth rate
 sim.Q = mean.Q #0.02    # process error variance
@@ -63,9 +65,9 @@ for(i in 1:nsim){
   y.ts[i,missYears]=NA
   
   #MARSS estimates 
-  kem = MARSS(y.ts[i,], silent=TRUE)
+  kem = bayes.marss.1.fn(y.ts[i,])   #MARSS(y.ts[i,], silent=TRUE)
   #type=vector outputs the estimates as a vector instead of a list
-  params[i,c(1,3,4)] = coef(kem,type="vector")[c(2,3,1)]
+  params[i,c(1,3,4)] = unlist(kem$BUGSoutput$mean[c(3,5,6)]) #params[i,c(1,3,4)] = coef(kem,type="vector")[c(2,3,1)]
   
   #Dennis et al 1991 estimates
   den.years = years[!is.na(y.ts[i,])]  # the non missing years
@@ -86,7 +88,7 @@ params[nsim+2,]=c(sim.u,sim.u,sim.Q,sim.R,sim.Q)
 
 ###################################################
 ### code chunk number 20: Cs1_Exercise3
-# Dennis diffusion process esitmates of extintion risk
+# Dennis diffusion process esitmates of extinction risk
 ###################################################
 #Needs Example 2 to be run first
 # par(mfrow=c(3,3))
@@ -249,7 +251,7 @@ extinct.graph.fn <-function(out, lab){
 ###################################################
 # IUCN criterion A
 
-#png(filename = "output/fig_PVA_CrA.png", width = 120, height = 170, units = 'mm', res = 300) 
+png(filename = "output/fig_PVA_Bayes_CrA.png", width = 120, height = 170, units = 'mm', res = 300) 
 
 par(mfrow=c(3,1), mar=c(5.1, 4.1, 4.1, 9.5))
 extinct.graph.fn(extinct.80, "CR: 80% population decline")
@@ -266,12 +268,12 @@ par(mfrow = c(1,1), mar=c(5, 4, 4, 2) + 0.1)
 mtext("Probability of population decline", 2, line=3)
 mtext("Years", 1, line=3)
 
-#dev.off()  
+dev.off()  
 
 
 # criterion E
 
-#png(filename = "output/fig_PVA_CrE.png", width = 120, height = 170, units = 'mm', res = 300) 
+png(filename = "output/fig_PVA_bayes_CrE.png", width = 120, height = 170, units = 'mm', res = 300) 
 
 par(mfrow=c(3,1), mar=c(5.1, 4.1, 4.1, 9.5))
 extinct.graph.fn(extinct.E.CR, "CR: 50% chance of extinction in 10 years")
@@ -287,7 +289,7 @@ par(mfrow = c(1,1), mar=c(5, 4, 4, 2) + 0.1)
 mtext("Probability of 99% population decline", 2, line=3)
 mtext("Years", 1, line=3)
 
-#dev.off()  
+dev.off()  
 
 
 
