@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# To give your job a name, replace "MyJob" with an appropriate name
+#PBS -N kowari-pop-sim
+
+# Project line
+#PBS -P RDS-FSC-DERG001-RW
+
+# For R need to run on single CPU
+#PBS -l select=1:ncpus=8:mem=16GB
+
+# set your minimum acceptable walltime=hours:minutes:seconds
+#PBS -l walltime=72:00:00
+
+# Inherit the correct environment variables
+#PBS -V
+
+# Specify your email address to be notified of progress.
+#PBS -M aaron.greenville@sydney.edu.au
+# To receive an email:
+#       - job is aborted: 'a' 
+#       - job begins execution: 'b'
+#       - job terminates: 'e'
+#       Note: Please ensure that the PBS -M option above is set.
+#
+#PBS -m abe
+
+# Changes directory to your execution directory (Leave as is)
+cd $PBS_O_WORKDIR
+
+# Load the environment variables for R
+module load R
+module load jags/4.2.0
+
+# The command to actually run the job
+R --vanilla < HPC_pop_sim_script.R 
