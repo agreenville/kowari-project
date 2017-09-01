@@ -138,6 +138,7 @@ extinc.risk.fn <- function(pd, te,sim.u, sim.Q, params){
 }
 return(list(tyrs, marss.sim, denn.sim, real.ex ))
 } # end function
+
 ########################################
 # calc PVA's
 
