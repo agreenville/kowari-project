@@ -99,7 +99,7 @@ print(Z.1)
 kowari.log <- log(kowari.l+1)
 
 # save data for HPC
-save(kowari.log, file="data/HPC_kowari_log.Rdata")
+#save(kowari.log, file="data/HPC_kowari_log.Rdata")
 
 #z score captures/100 N
 #mulgaraTN.mean = apply(mulgaralm.log,1,mean, na.rm=T)
