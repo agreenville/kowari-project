@@ -51,6 +51,7 @@
 # Dennis is process error only.
 # MARSS has both process and obs error.
 # sim with 10% missing data
+# bootstrapping.
 # up-dated for Bayesian methods. See HPC pop sim script to run
 # 1000s of simulations.
 ###################################################
@@ -158,7 +159,7 @@ return(list(tyrs, marss.sim, denn.sim, real.ex ))
 # calc PVA's
 
 # Uncomment to load HPC results. 10 000 sims
-load("workspaces/HPC_pop_sims.RData")
+load("workspaces/HPC/HPC_pop_sims.RData")
 
 # 90% prob of pop decline over 100 years
 extinct.100.90 <- extinc.risk.fn(pd=0.1, te = 100, sim.u=sim.u, sim.Q = sim.Q, params = params)
