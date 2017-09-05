@@ -61,7 +61,8 @@ kowari.effort.site <- data.frame(Year=kowari.effort$Year, Site = kowari.effort$S
 #adding missing years
 Years <- data.frame(Year=rep(seq(min(as.numeric(as.character(kowari.effort.site$Year))), 
              max(as.numeric(as.character(kowari.effort.site$Year))),1),2), 
-             Site = c(rep("WAL GRID", 12), rep("PAN GRID", 12)))
+             Site = c(rep("WAL GRID", 16),
+                      rep("PAN GRID", 16)))
 
 kowari.effort.site.t <- join(kowari.effort.site, Years, type="full")
 # sort by year and site
@@ -161,7 +162,7 @@ kow.x.ZC.1.TN.UC.r <- exp(kow.x.ZC.1.TN.UC)-1
 # 1 state
 par(mfrow = c(1,1), xpd=F, mar=c(5.1, 4.1, 4.1, 11), family = "serif")
 
-matplot(years.m, (kow.x.ZC.1.TN.r), xlim=c(1999, 2012), ylim = c(0,8), type="l",lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
+matplot(years.m, (kow.x.ZC.1.TN.r), xlim=c(1999, 2016), ylim = c(0,8), type="l",lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
         bty="l", font.lab=2)
 polygon(c(years.m,rev(years.m)),c(t(kow.x.ZC.1.TN.LC.r), rev( t(kow.x.ZC.1.TN.UC.r))) ,
         col = adjustcolor("grey90", 0.9), border = NA)
@@ -302,8 +303,8 @@ for (i in 1:100){
 
 
 
-#CSEGtmufigure(N = 50, u = mean.u, s2p = mean.Q)
-#CSEGriskfigure(kowari.pred, te = 100,  threshold = 0.1, 
+# CSEGtmufigure(N = 50, u = mean.u, s2p = mean.Q)
+# CSEGriskfigure(kowari.pred, te = 100,  threshold = 0.1,
 #               datalogged = FALSE, CI.method = "hessian", CI.sim = 1000)
 
 
@@ -311,7 +312,7 @@ for (i in 1:100){
 
 ############
 # MARSS package
-
-Z=factor(c(1,1))
-kow.marss.1 <- MARSS(kowari.log, model=list(Z=Z))
-MARSSparamCIs(kow.marss.1)
+# 
+# Z=factor(c(1,1))
+# kow.marss.1 <- MARSS(kowari.log, model=list(Z=Z))
+# MARSSparamCIs(kow.marss.1)
