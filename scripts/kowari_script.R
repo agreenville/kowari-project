@@ -1,18 +1,14 @@
 ####################################
-# Kowari pop dyn and habitat use
+# Kowari pop dyn 
 # MARSS analysis
 # Aaron
 #####################################
 
 # load packages and graphing functions
-
-#library(ggplot2)
-#library(grid)
-#library(gridExtra)
-#library(psych)
 require(reshape)
 library(plyr)
 library(mcmcplots)
+library(plotrix)
 
 source("R/MARSS_functions.R") #bayesian models
 
@@ -80,10 +76,48 @@ is.numeric(kowari.l) # needs to equal true
 years.m <-unique(Years$Year)
 sites <- droplevels(unique(kowari.effort.site$Site))
 
-#############################################################################
+######################################################
+# data for repro and condition 
+head(kowari.grid.no.recap.yr) # capture data with recapts removed
+
+# mean testes size/year
+teste.size <- aggregate(Testes_width~Year,data=kowari.grid.no.recap.yr, mean)
+teste.size <- data.frame(Year = as.numeric(as.character(teste.size$Year)),
+                                           Testes.width = teste.size$Testes_width)
+
+
+# mean pouch young/year
+py <- aggregate(Num_young~Year,data=kowari.grid.no.recap.yr, mean)
+py <- data.frame(Year = as.numeric(as.character(py$Year)),
+                         py = py$Num_young)
+
+# % of pop breeding/year
+
+no.breeding.f <- aggregate(Species~Year,data=subset(kowari.grid.no.recap.yr, Num_young>0) , length)
+
+tot.f <- aggregate(Species~Year,data=subset(kowari.grid.no.recap.yr, SEX=="F") , length)
+
+prop.breeding.f <- merge(tot.f,no.breeding.f, by="Year", all=T )
+prop.breeding.f[is.na(prop.breeding.f)] <- 0
+prop.breeding.f <- data.frame(year = as.numeric(as.character(prop.breeding.f$Year)),
+                              total=prop.breeding.f$Species.x, breeding=prop.breeding.f$Species.y,
+                              pro.breed = prop.breeding.f$Species.y/prop.breeding.f$Species.x)
+
+# weights
+mass <- aggregate(Weight~Year+SEX,data=kowari.grid.no.recap.yr, mean)
+
+
+################################################################################
+# ANALYSIS
+#
+################################################################################
+#
+# MARSS temporal and spatial dynamics
+#
+################################################################################
 # kowari 100TN data
 # 1-state
-########################################################################
+################################################################################
 whichPop.1 <- c(1,1)
 n.states.1 <- max(whichPop.1)
 
@@ -153,6 +187,7 @@ kow.x.ZC.1.TN.r <-  exp(kow.x.ZC.1.TN)-1
 kow.x.ZC.1.TN.LC.r <- exp(kow.x.ZC.1.TN.LC)-1
 kow.x.ZC.1.TN.UC.r <- exp(kow.x.ZC.1.TN.UC)-1
 
+detach.jags()
 
 ###############################################
 # adding symbols for sites. Used in paper
@@ -167,20 +202,36 @@ matplot(years.m, (kow.x.ZC.1.TN.r), xlim=c(1999, 2016), ylim = c(0,8), type="l",
 polygon(c(years.m,rev(years.m)),c(t(kow.x.ZC.1.TN.LC.r), rev( t(kow.x.ZC.1.TN.UC.r))) ,
         col = adjustcolor("grey90", 0.9), border = NA)
 matlines(years.m, (kow.x.ZC.1.TN.r), lwd=1)
-matpoints(years.m,t(kowari.l),pch=15:23, cex =1, col=c("black", "blue"))
+matpoints(years.m,t(kowari.l),pch=15:16, cex =1, col=c("black", "blue"))
 #mtext("(c)",3, adj=0, line=2)
 
 #mtext("Year",1, adj=0.5, line=3.5, font=2)
 #mtext("Captures per 100 trap nights", 2, adj=0.4,line=3.2, font=2)
 
-legend("topright",xpd=T, legend=sites, pch=15:23, cex=1, pt.cex = 1,
-       col=c("black","blue"),box.col=NA,inset=c(-.33,0))
+legend("topright",xpd=T, legend=c("Breeding females", paste(sites)), pch=c(21,15,16),
+       pt.bg="darkgrey",
+       cex=1, pt.cex = c(3.8,1,1),
+       col=c("black","black","blue"),box.col=NA,inset=c(-.33,0))
+
+
+par(xpd=T)
+for(i in 1:length(prop.breeding.f$pro.breed)){
+  ifelse(prop.breeding.f$breeding[i]>0, 
+  
+  floating.pie(prop.breeding.f$year[i],8.5,
+             c(prop.breeding.f$breeding[i],
+               (prop.breeding.f$total[i]- prop.breeding.f$breeding[i])),
+             radius=0.4,col=c("darkgrey","white")),
+  
+  floating.pie(prop.breeding.f$year[i],8.5,
+               c(prop.breeding.f$breeding[i]+0.01,
+                 (prop.breeding.f$total[i]- prop.breeding.f$breeding[i])),
+               radius=0.4,col=c("darkgrey","white")))
+  
+  
+}
 
 par(mfrow = c(1,1), xpd=NA, mar=c(5, 4, 4, 2) + 0.1, family = "")
-#dev.off()
-
-
-detach.jags()
 
 
 # mcmcplot(kowariMARSS)
