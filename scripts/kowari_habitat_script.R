@@ -79,7 +79,6 @@ kowari.habitat["present"][is.na(kowari.habitat["present"])] <- 0
 
 kowari.habitat.m <- kowari.habitat[,c("GPS_wpt", "Gibber.size", "Gibber.pavement.cover", "Sand.Mound.number",
                                       "Sand.Mound.cover", "Sand.Spread.cover", "Hard.Darainage.Depression.cover",
-                                      "Sand.Mound.cover", "Sand.Spread.cover", "Hard.Darainage.Depression.cover",
                                       "Cracking.Clay.Drainage.Depression.cover", "Dune.cover", "present")]
 head(kowari.habitat.m)
 
@@ -87,7 +86,7 @@ head(kowari.habitat.m)
 kowari.habitat.m[is.na(kowari.habitat.m)] <- 0
 
 # remove present coln and set it up as a factor for graphing
-kowari.habitat.m <- kowari.habitat.m[,-13]
+kowari.habitat.m <- kowari.habitat.m[,-10]
 kowari.habitat.m <- as.matrix(kowari.habitat.m[,-1])
 rownames(kowari.habitat.m) <- kowari.habitat$GPS_wpt
 
@@ -104,7 +103,7 @@ set.seed(2)
 
 
 NMDS.hab <- metaMDS(kowari.habitat.m, distance="euclidean",  # Our community-by-species matrix
-                 trymax = 20, k=3,  parallel = 6) # The number of reduced dimensions
+                 trymax = 50, k=3,  parallel = 6) # The number of reduced dimensions
 # NMDS.hab
 # 
 # plot(NMDS.hab)
@@ -156,7 +155,7 @@ summary(kowari.glm)
 
 dd<- dredge(kowari.glm, rank = "AICc")
 # plot(subset(dd, delta < 2))
-# subset(dd, delta < 2)
+ subset(dd, delta < 2)
 
 top.model <- get.models(dd, subset = delta < 2)
 
