@@ -11,6 +11,7 @@ library(mcmcplots)
 library(plotrix)
 
 source("R/MARSS_functions.R") #bayesian models
+source("R/summarySE.R")
 
 ########################
 # load data
@@ -79,6 +80,7 @@ sites <- droplevels(unique(kowari.effort.site$Site))
 ######################################################
 # data for repro and condition 
 head(kowari.grid.no.recap.yr) # capture data with recapts removed
+kowari.grid.no.recap.yr["Num_young"][is.na(kowari.grid.no.recap.yr["Num_young"])] <- 0
 
 # mean testes size/year
 teste.size <- aggregate(Testes_width~Year,data=kowari.grid.no.recap.yr, mean)
@@ -103,15 +105,70 @@ prop.breeding.f <- data.frame(year = as.numeric(as.character(prop.breeding.f$Yea
                               total=prop.breeding.f$Species.x, breeding=prop.breeding.f$Species.y,
                               pro.breed = prop.breeding.f$Species.y/prop.breeding.f$Species.x)
 
-# weights
-mass <- aggregate(Weight~Year+SEX,data=kowari.grid.no.recap.yr, mean)
+# weights with females with py removed
+mass <- aggregate(Weight~Year+SEX,
+                  data=subset(kowari.grid.no.recap.yr, Num_young<1), mean)
 
+# removing females with py (no recapts)
+
+kowari.no.py <- subset(kowari.grid.no.recap.yr, Num_young<1)
+kowari.cond.m <- subset(kowari.no.py, SEX=="M")
+kowari.cond.f <- subset(kowari.no.py, SEX=="F")
 
 ################################################################################
 # ANALYSIS
 #
 ################################################################################
+# body condition
 #
+################################################################################
+
+plot(kowari.cond.m$Head_length, kowari.cond.m$Weight)
+ abline(lm(kowari.cond.m$Weight~kowari.cond.m$Head_length))
+
+plot(kowari.cond.f$Head_length, kowari.cond.f$Weight)
+ abline(lm(kowari.cond.f$Weight~kowari.cond.f$Head_length))
+
+# Residual deviations from the linear regression line
+body.lm.m <- lm(log(Weight)~log(Head_length), data=kowari.cond.m)
+ summary(body.lm.m)
+ 
+body.lm.f <- lm(log(Weight)~log(Head_length), data=kowari.cond.f)
+  summary(body.lm.f)
+  
+# residuals
+body.res.m <-  body.lm.m$residuals
+body.res.f <-  body.lm.f$residuals
+# add residuals back to dataset. Note there is an na in head_length 
+kowari.cond.m$res[!is.na(kowari.cond.m$Head_length)] <- body.res.m
+kowari.cond.f$res <- body.res.f
+
+plot(kowari.cond.m$Year, kowari.cond.m$res)
+ 
+plot(kowari.cond.f$Year, kowari.cond.f$res) 
+
+# summary stats  
+cond.m <- summarySE(kowari.cond.m, measurevar="res",
+          groupvars="Year", na.rm=TRUE)
+# convert year to numeric
+cond.m["Year"]<-as.numeric(as.character(cond.m$Year))
+
+# all years surveyed data.frame
+years.df <- data.frame(Year = years.m)
+
+# add missing years
+cond.m <- join(cond.m, years.df, type ="full")
+
+library(ggplot2)
+
+ggplot(cond.m, aes(Year, res))+
+  geom_point()+
+  geom_errorbar(aes(ymin=res-ci, ymax=res+ci), width=.1) +
+  geom_hline(yintercept = 0, linetype=2) + 
+  theme_classic()+
+  ylab("Residual value")
+  
+###############################################################################
 # MARSS temporal and spatial dynamics
 #
 ################################################################################
