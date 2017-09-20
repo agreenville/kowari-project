@@ -104,7 +104,7 @@ teste.size <- data.frame(Year = as.numeric(as.character(teste.size$Year)),
 
 
 # mean pouch young/year
-py <- aggregate(Num_young~Year,data=kowari.grid.no.recap.yr, mean)
+py <- aggregate(Num_young~Year,data=subset(kowari.grid.no.recap.yr, SEX=="F"), mean)
 py <- data.frame(Year = as.numeric(as.character(py$Year)),
                          py = py$Num_young)
 
@@ -179,8 +179,8 @@ years.df <- data.frame(Year = years.m)
 # add missing years
 cond.m <- join(cond.m, years.df, type ="full")
 cond.f <- join(cond.f, years.df, type ="full")
-
-
+py.y <- join(py, years.df, type ="full") # no. of py for graphing later on
+#py.y$py[is.na(py.y$py)] <- 0 #replace Na with 0
 
 male.cond.g <- ggplot(cond.m, aes(Year, res))+
                 geom_point()+
@@ -189,7 +189,9 @@ male.cond.g <- ggplot(cond.m, aes(Year, res))+
                 theme_classic()+
                 #scale_x_continuous(breaks = seq(2000, 2015, 1))+
                 scale_x_continuous(limits=c(1999, 2016))+
-                ggtitle("a)")+theme(plot.title = element_text(face="plain"))+
+                ggtitle("a)")+
+                theme(plot.title = element_text(face="plain"),
+                      axis.text.x=element_blank())+
                 ylab("Residual value")+ xlab("")
 
 
@@ -200,7 +202,8 @@ female.cond.g <- ggplot(cond.f, aes(Year, res))+
                   theme_classic()+
                   scale_x_continuous(limits=c(1999, 2016))+
                   ggtitle("b)")+
-                  theme(plot.title = element_text(face="plain"))+
+                  theme(plot.title = element_text(face="plain"),
+                        axis.text.x=element_blank())+
                   ylab("Residual value")+ xlab("")
 
 rain.g <- ggplot(subset(rain, Year >= 2000 & Year <=2015), aes(Year, Annual))+
@@ -229,24 +232,26 @@ kowari.cond.m.rain <- join(kowari.cond.m, rain, "Year") # male
 female.cond.rain.lm <- lm(res~Annual, data=kowari.cond.f.rain)
   summary(female.cond.rain.lm)
 
+female.cond.rain.lag.lm <- lm(res~lag.1, data=kowari.cond.f.rain)
+summary(female.cond.rain.lag.lm)
 
 par(mfrow = c(2,2))
 plot(female.cond.rain.lm)
+plot(female.cond.rain.lag.lm)
 mfrow = c(1,1)
-
-female.cond.rain.lag.lm <- lm(res~lag.1, data=kowari.cond.f.rain)
-summary(female.cond.rain.lag.lm)
 
 male.cond.rain.lm <- lm(res~Annual, data=kowari.cond.m.rain)
 summary(male.cond.rain.lm)
 
-
-par(mfrow = c(2,2))
-plot(female.cond.rain.lm)
-mfrow = c(1,1)
-
 male.cond.rain.lag.lm <- lm(res~lag.1, data=kowari.cond.m.rain)
 summary(male.cond.rain.lag.lm)
+
+par(mfrow = c(2,2))
+plot(male.cond.rain.lm)
+plot(male.cond.rain.lag.lm)
+mfrow = c(1,1)
+
+
 
 ########################################
 # Reproductive condition
@@ -265,7 +270,6 @@ testes.res <-  testes.lm$residuals
 
 # add residuals back to dataset. Note there is an na in head_length 
 kowari.cond.m$teste.res[!is.na(kowari.cond.m$Head_length)] <- testes.res
-
 
 #plot(kowari.cond.m$Year, kowari.cond.m$teste.res)
 
@@ -290,6 +294,13 @@ male.teste.g <- ggplot(teste.m, aes(Year, teste.res))+
   #ggtitle("a)")+theme(plot.title = element_text(face="plain"))+
   ylab("Residual value")+ xlab("")
 
+
+grid.arrange(male.cond.g, female.cond.g, male.teste.g, rain.g, nrow=4, 
+             left=textGrob("",gp=gpar(fontsize=12),  rot=90),
+             bottom=textGrob("Year", gp=gpar(fontsize=12)))
+
+
+
 # lm of individual teste condition (residuals) and rain
 # join rain to kowari data
 kowari.teste.rain <- join(teste.m, rain, "Year") # male
@@ -304,7 +315,7 @@ summary(teste.rain.lm)
 par(mfrow = c(2,2))
 plot(teste.rain.lag.lm)
 plot(teste.rain.lm)
-mfrow = c(1,1)
+par(mfrow = c(1,1))
 
 # proportion of females breeding/yr
 prop.breeding.f
@@ -312,9 +323,54 @@ prop.breeding.f
 # join with rainfall
 prop.breeding.f.rain <- join(prop.breeding.f, rain, "Year") # 
 
+# binomal regression - proportional odds. Proportion of females with py each year
+breed.f.p <- round(prop.breeding.f.rain$pro.breed*100)
+breed.f.mirror <- 100-breed.f.p
+breed.f <- cbind(breed.f.p, breed.f.mirror)
 
+breed.f.glm = glm(breed.f ~ Annual, family = "quasibinomial", 
+                      data = prop.breeding.f.rain)
+summary(breed.f.glm)
 
+breed.f.lag.glm = glm(breed.f ~ lag.1, family = "quasibinomial", 
+                  data = prop.breeding.f.rain)
+summary(breed.f.lag.glm)
 
+par(mfrow = c(2,2))
+plot(breed.f.glm)
+plot(breed.f.lag.glm)
+par(mfrow = c(1,1))
+
+# number of py per female and rainfall
+# female data
+K.females <- subset(kowari.grid.no.recap.yr, SEX=="F")
+# join with rainfall
+K.females.rain <- join(K.females, rain, "Year") # 
+
+plot(K.females.rain$lag.1, K.females.rain$Num_young)
+abline(lm(K.females.rain$Num_young~K.females.rain$lag.1))
+
+breed.py.lag.glm = glm(Num_young ~ lag.1,family = "quasipoisson", data = K.females.rain)
+summary(breed.py.lag.glm)
+
+breed.py.glm = glm(Num_young ~ Annual, family = "quasipoisson", data = K.females.rain)
+summary(breed.py.glm)
+
+par(mfrow = c(2,2))
+plot(breed.py.lag.glm)
+plot(breed.py.glm)
+par(mfrow = c(1,1))
+
+# plot 
+new.data <- data.frame(lag.1=seq(min(K.females.rain$lag.1, na.rm=TRUE),
+                max(K.females.rain$lag.1,na.rm=TRUE), by=1))
+breed.py.fit <-predict(breed.py.lag.glm, newdata=new.data, se=TRUE, type = "response")
+
+plot(K.females.rain$lag.1, K.females.rain$Num_young, bty="l",
+     pch=16, xlab="Antecedent annual rainfall (mm)", ylab="Number of pouch young")
+  lines(new.data$lag.1, breed.py.fit$fit )
+  lines(new.data$lag.1, breed.py.fit$fit+1.96*breed.py.fit$se.fit, lty=2 )
+  lines(new.data$lag.1, breed.py.fit$fit-1.96*breed.py.fit$se.fit, lty=2 )
 
 ###############################################################################
 # MARSS temporal and spatial dynamics
@@ -412,13 +468,6 @@ matpoints(years.m,t(kowari.l),pch=15:16, cex =1, col=c("black", "blue"))
 
 #mtext("Year",1, adj=0.5, line=3.5, font=2)
 #mtext("Captures per 100 trap nights", 2, adj=0.4,line=3.2, font=2)
-
-legend("topright",xpd=T, legend=c("Breeding females", paste(sites)), pch=c(21,15,16),
-       pt.bg="darkgrey",
-       cex=1, pt.cex = c(3.8,1,1),
-       col=c("black","black","blue"),box.col=NA,inset=c(-.33,0))
-
-
 par(xpd=T)
 for(i in 1:length(prop.breeding.f$pro.breed)){
   ifelse(prop.breeding.f$breeding[i]>0, 
@@ -436,7 +485,21 @@ for(i in 1:length(prop.breeding.f$pro.breed)){
   
 }
 
+# par(new = T, xpd=F, mar=c(5.1, 4.1, 4.1, 11), family = "serif")
+# barplot(py.y$py, axes=F, xlab=NA, ylab=NA, #py.y$Year, pch=16, xlim=c(1999, 2016),bty="l"
+#       ylim = c(0,8), font.lab=2)
+# axis(side = 4, bty="l", at=c())
+# mtext(side = 4, line = 3, 'Number of pouch young', font=2)
+
+legend("topright",xpd=T, legend=c("Breeding females", paste(sites)), pch=c(21,15,16),
+       pt.bg="darkgrey",
+       cex=1, pt.cex = c(3.8,1,1),
+       col=c("black","black","blue"),box.col=NA,inset=c(-.33,0))
+
 par(mfrow = c(1,1), xpd=NA, mar=c(5, 4, 4, 2) + 0.1, family = "")
+# 
+# nf <- layout(matrix(c(2,0,1,3),2,2,byrow = TRUE), c(3,1), c(1,3), TRUE)
+# layout.show(nf)
 
 
 # mcmcplot(kowariMARSS)
