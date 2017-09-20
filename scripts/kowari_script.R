@@ -9,6 +9,7 @@ require(reshape)
 library(plyr)
 library(mcmcplots)
 library(plotrix)
+library(ggplot2)
 
 source("R/MARSS_functions.R") #bayesian models
 source("R/summarySE.R")
@@ -76,7 +77,21 @@ is.numeric(kowari.l) # needs to equal true
 
 years.m <-unique(Years$Year)
 sites <- droplevels(unique(kowari.effort.site$Site))
+######################
+# load rainfall data from Birdsville
+# rain mostly from airport, but with 2 values from police station to fill missing values
 
+rain <- read.csv("data/BirdvilleAirportRain.csv", header=T) 
+head(rain)
+
+# add 1 yr lag coln
+rain$lag.1 <- c(NA, rain$Annual[-length(rain$Annual)])
+
+ggplot(rain, aes(Year, Annual))+
+  geom_bar(stat="identity")+
+  theme_classic()
+  
+  
 ######################################################
 # data for repro and condition 
 head(kowari.grid.no.recap.yr) # capture data with recapts removed
@@ -101,7 +116,7 @@ tot.f <- aggregate(Species~Year,data=subset(kowari.grid.no.recap.yr, SEX=="F") ,
 
 prop.breeding.f <- merge(tot.f,no.breeding.f, by="Year", all=T )
 prop.breeding.f[is.na(prop.breeding.f)] <- 0
-prop.breeding.f <- data.frame(year = as.numeric(as.character(prop.breeding.f$Year)),
+prop.breeding.f <- data.frame(Year = as.numeric(as.character(prop.breeding.f$Year)),
                               total=prop.breeding.f$Species.x, breeding=prop.breeding.f$Species.y,
                               pro.breed = prop.breeding.f$Species.y/prop.breeding.f$Species.x)
 
@@ -147,27 +162,160 @@ plot(kowari.cond.m$Year, kowari.cond.m$res)
  
 plot(kowari.cond.f$Year, kowari.cond.f$res) 
 
-# summary stats  
-cond.m <- summarySE(kowari.cond.m, measurevar="res",
+# summary stats 
+
+cond.m <- summarySE(kowari.cond.m, measurevar="res", #males
           groupvars="Year", na.rm=TRUE)
+
+cond.f <- summarySE(kowari.cond.f, measurevar="res", #females
+                    groupvars="Year", na.rm=TRUE)
 # convert year to numeric
 cond.m["Year"]<-as.numeric(as.character(cond.m$Year))
+cond.f["Year"]<-as.numeric(as.character(cond.f$Year))
 
 # all years surveyed data.frame
 years.df <- data.frame(Year = years.m)
 
 # add missing years
 cond.m <- join(cond.m, years.df, type ="full")
+cond.f <- join(cond.f, years.df, type ="full")
 
-library(ggplot2)
 
-ggplot(cond.m, aes(Year, res))+
+
+male.cond.g <- ggplot(cond.m, aes(Year, res))+
+                geom_point()+
+                geom_errorbar(aes(ymin=res-ci, ymax=res+ci), width=.1) +
+                geom_hline(yintercept = 0, linetype=2) + 
+                theme_classic()+
+                #scale_x_continuous(breaks = seq(2000, 2015, 1))+
+                scale_x_continuous(limits=c(1999, 2016))+
+                ggtitle("a)")+theme(plot.title = element_text(face="plain"))+
+                ylab("Residual value")+ xlab("")
+
+
+female.cond.g <- ggplot(cond.f, aes(Year, res))+
+                  geom_point()+
+                  geom_errorbar(aes(ymin=res-ci, ymax=res+ci), width=.1) +
+                  geom_hline(yintercept = 0, linetype=2) + 
+                  theme_classic()+
+                  scale_x_continuous(limits=c(1999, 2016))+
+                  ggtitle("b)")+
+                  theme(plot.title = element_text(face="plain"))+
+                  ylab("Residual value")+ xlab("")
+
+rain.g <- ggplot(subset(rain, Year >= 2000 & Year <=2015), aes(Year, Annual))+
+  geom_bar(stat="identity")+
+  ggtitle("c)")+
+  scale_x_continuous(limits=c(1999, 2016))+
+  ylab("Rainfall (mm)")+ xlab("")+
+  theme_classic()
+
+
+#png(filename = "output/bodyCondition.png", width = 120, height = 100, units = 'mm', res = 600) 
+library(gridExtra)
+library(grid)
+grid.arrange(male.cond.g, female.cond.g, rain.g,
+             left=textGrob("",gp=gpar(fontsize=12),  rot=90),
+             bottom=textGrob("Year", gp=gpar(fontsize=12)))
+
+
+#dev.off()
+
+# lm of individual animals boby condition (residuals) and rain
+# join rain to kowari data
+kowari.cond.f.rain <- join(kowari.cond.f, rain, "Year") # female
+kowari.cond.m.rain <- join(kowari.cond.m, rain, "Year") # male
+
+female.cond.rain.lm <- lm(res~Annual, data=kowari.cond.f.rain)
+  summary(female.cond.rain.lm)
+
+
+par(mfrow = c(2,2))
+plot(female.cond.rain.lm)
+mfrow = c(1,1)
+
+female.cond.rain.lag.lm <- lm(res~lag.1, data=kowari.cond.f.rain)
+summary(female.cond.rain.lag.lm)
+
+male.cond.rain.lm <- lm(res~Annual, data=kowari.cond.m.rain)
+summary(male.cond.rain.lm)
+
+
+par(mfrow = c(2,2))
+plot(female.cond.rain.lm)
+mfrow = c(1,1)
+
+male.cond.rain.lag.lm <- lm(res~lag.1, data=kowari.cond.m.rain)
+summary(male.cond.rain.lag.lm)
+
+########################################
+# Reproductive condition
+#
+# testes size condition
+
+plot(kowari.cond.m$Head_length, kowari.cond.m$Testes_width)
+abline(lm(kowari.cond.m$Testes_width~kowari.cond.m$Head_length))
+
+# Residual deviations from the linear regression line
+testes.lm <- lm(log(Testes_width)~log(Head_length), data=kowari.cond.m)
+summary(testes.lm)
+
+# residuals
+testes.res <-  testes.lm$residuals
+
+# add residuals back to dataset. Note there is an na in head_length 
+kowari.cond.m$teste.res[!is.na(kowari.cond.m$Head_length)] <- testes.res
+
+
+#plot(kowari.cond.m$Year, kowari.cond.m$teste.res)
+
+# summary stats 
+
+teste.m <- summarySE(kowari.cond.m, measurevar="teste.res", #males
+                    groupvars="Year", na.rm=TRUE)
+
+# convert year to numeric
+teste.m["Year"]<-as.numeric(as.character(teste.m$Year))
+
+# add missing years
+teste.m <- join(teste.m, years.df, type ="full")
+
+male.teste.g <- ggplot(teste.m, aes(Year, teste.res))+
   geom_point()+
-  geom_errorbar(aes(ymin=res-ci, ymax=res+ci), width=.1) +
+  geom_errorbar(aes(ymin=teste.res-ci, ymax=teste.res+ci), width=.1) +
   geom_hline(yintercept = 0, linetype=2) + 
   theme_classic()+
-  ylab("Residual value")
-  
+  #scale_x_continuous(breaks = seq(2000, 2015, 1))+
+  scale_x_continuous(limits=c(1999, 2016))+
+  #ggtitle("a)")+theme(plot.title = element_text(face="plain"))+
+  ylab("Residual value")+ xlab("")
+
+# lm of individual teste condition (residuals) and rain
+# join rain to kowari data
+kowari.teste.rain <- join(teste.m, rain, "Year") # male
+
+teste.rain.lag.lm <- lm(teste.res~lag.1, data=kowari.teste.rain)
+summary(teste.rain.lag.lm)
+
+teste.rain.lm <- lm(teste.res~Annual, data=kowari.teste.rain)
+summary(teste.rain.lm)
+
+
+par(mfrow = c(2,2))
+plot(teste.rain.lag.lm)
+plot(teste.rain.lm)
+mfrow = c(1,1)
+
+# proportion of females breeding/yr
+prop.breeding.f
+
+# join with rainfall
+prop.breeding.f.rain <- join(prop.breeding.f, rain, "Year") # 
+
+
+
+
+
 ###############################################################################
 # MARSS temporal and spatial dynamics
 #
@@ -275,12 +423,12 @@ par(xpd=T)
 for(i in 1:length(prop.breeding.f$pro.breed)){
   ifelse(prop.breeding.f$breeding[i]>0, 
   
-  floating.pie(prop.breeding.f$year[i],8.5,
+  floating.pie(prop.breeding.f$Year[i],8.5,
              c(prop.breeding.f$breeding[i],
                (prop.breeding.f$total[i]- prop.breeding.f$breeding[i])),
              radius=0.4,col=c("darkgrey","white")),
   
-  floating.pie(prop.breeding.f$year[i],8.5,
+  floating.pie(prop.breeding.f$Year[i],8.5,
                c(prop.breeding.f$breeding[i]+0.01,
                  (prop.breeding.f$total[i]- prop.breeding.f$breeding[i])),
                radius=0.4,col=c("darkgrey","white")))
