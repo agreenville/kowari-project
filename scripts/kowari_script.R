@@ -105,8 +105,14 @@ teste.size <- data.frame(Year = as.numeric(as.character(teste.size$Year)),
 
 # mean pouch young/year
 py <- aggregate(Num_young~Year,data=subset(kowari.grid.no.recap.yr, SEX=="F"), mean)
-py <- data.frame(Year = as.numeric(as.character(py$Year)),
-                         py = py$Num_young)
+
+py <- summarySE(subset(kowari.grid.no.recap.yr, SEX=="F"),
+                measurevar="Num_young", groupvars="Year", na.rm=TRUE)
+# convert year to numeric
+py["Year"]<-as.numeric(as.character(py$Year))
+
+#py <- data.frame(Year = as.numeric(as.character(py$Year)),
+#                         py = py$Num_young)
 
 # % of pop breeding/year
 
@@ -158,9 +164,9 @@ body.res.f <-  body.lm.f$residuals
 kowari.cond.m$res[!is.na(kowari.cond.m$Head_length)] <- body.res.m
 kowari.cond.f$res <- body.res.f
 
-plot(kowari.cond.m$Year, kowari.cond.m$res)
+#plot(kowari.cond.m$Year, kowari.cond.m$res)
  
-plot(kowari.cond.f$Year, kowari.cond.f$res) 
+#plot(kowari.cond.f$Year, kowari.cond.f$res) 
 
 # summary stats 
 
@@ -180,7 +186,7 @@ years.df <- data.frame(Year = years.m)
 cond.m <- join(cond.m, years.df, type ="full")
 cond.f <- join(cond.f, years.df, type ="full")
 py.y <- join(py, years.df, type ="full") # no. of py for graphing later on
-#py.y$py[is.na(py.y$py)] <- 0 #replace Na with 0
+
 
 male.cond.g <- ggplot(cond.m, aes(Year, res))+
                 geom_point()+
@@ -249,7 +255,7 @@ summary(male.cond.rain.lag.lm)
 par(mfrow = c(2,2))
 plot(male.cond.rain.lm)
 plot(male.cond.rain.lag.lm)
-mfrow = c(1,1)
+par(mfrow = c(1,1))
 
 
 
@@ -291,10 +297,11 @@ male.teste.g <- ggplot(teste.m, aes(Year, teste.res))+
   theme_classic()+
   #scale_x_continuous(breaks = seq(2000, 2015, 1))+
   scale_x_continuous(limits=c(1999, 2016))+
-  #ggtitle("a)")+theme(plot.title = element_text(face="plain"))+
+  #ggtitle("c)")+theme(plot.title = element_text(face="plain"),
+  #axis.text.x=element_blank())+
   ylab("Residual value")+ xlab("")
 
-
+# body condition and male repro condition fig
 grid.arrange(male.cond.g, female.cond.g, male.teste.g, rain.g, nrow=4, 
              left=textGrob("",gp=gpar(fontsize=12),  rot=90),
              bottom=textGrob("Year", gp=gpar(fontsize=12)))
@@ -318,8 +325,6 @@ plot(teste.rain.lm)
 par(mfrow = c(1,1))
 
 # proportion of females breeding/yr
-prop.breeding.f
-
 # join with rainfall
 prop.breeding.f.rain <- join(prop.breeding.f, rain, "Year") # 
 
@@ -456,51 +461,76 @@ detach.jags()
 
 #png(filename = "output/fig_kowari_1State.png", width = 200, height = 160, units = 'mm', res = 300) 
 # 1 state
-par(mfrow = c(1,1), xpd=F, mar=c(5.1, 4.1, 4.1, 11), family = "serif")
+# par(mfrow = c(1,1), xpd=F, mar=c(5.1, 4.1, 4.1, 11), family = "serif")
+# 
+# matplot(years.m, (kow.x.ZC.1.TN.r), xlim=c(1999, 2016), ylim = c(0,8), type="l",lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
+#         bty="l", font.lab=2)
+# polygon(c(years.m,rev(years.m)),c(t(kow.x.ZC.1.TN.LC.r), rev( t(kow.x.ZC.1.TN.UC.r))) ,
+#         col = adjustcolor("grey90", 0.9), border = NA)
+# matlines(years.m, (kow.x.ZC.1.TN.r), lwd=1)
+# matpoints(years.m,t(kowari.l),pch=15:16, cex =1, col=c("black", "blue"))
+# 
+# par(xpd=T)
+# for(i in 1:length(prop.breeding.f$pro.breed)){
+#   ifelse(prop.breeding.f$breeding[i]>0, 
+#   
+#   floating.pie(prop.breeding.f$Year[i],8.5,
+#              c(prop.breeding.f$breeding[i],
+#                (prop.breeding.f$total[i]- prop.breeding.f$breeding[i])),
+#              radius=0.4,col=c("darkgrey","white")),
+#   
+#   floating.pie(prop.breeding.f$Year[i],8.5,
+#                c(prop.breeding.f$breeding[i]+0.01,
+#                  (prop.breeding.f$total[i]- prop.breeding.f$breeding[i])),
+#                radius=0.4,col=c("darkgrey","white")))
+#   
+#   
+# }
+# 
+# legend("topright",xpd=T, legend=c("Breeding females", paste(sites)), pch=c(21,15,16),
+#        pt.bg="darkgrey",
+#        cex=1, pt.cex = c(3.8,1,1),
+#        col=c("black","black","blue"),box.col=NA,inset=c(-.33,0))
+# 
+#par(mfrow = c(1,1), xpd=NA, mar=c(5, 4, 4, 2) + 0.1, family = "")
+#######
 
+par(mfrow = c(2,1), xpd=F, mar=c(2, 4.1, 3.1, 11), family = "serif")
+plot(py.y$Year, py.y$Num_young, xaxt="n", xlab=NA, ylab="Pouch young",bty="l", pch=16, xlim=c(1999, 2016),
+        ylim = c(0,6), font.lab=2)
+  axis(1, at=c(2000,2005,2010,2015) ,labels=NA)
+  arrows(py.y$Year, py.y$Num_young-py.y$ci, py.y$Year, py.y$Num_young+py.y$ci,
+         length=0.05, angle=90, code=3)
+par(xpd=T)
+for(i in 1:length(prop.breeding.f$pro.breed)){
+  ifelse(prop.breeding.f$breeding[i]>0, 
+         
+         floating.pie(prop.breeding.f$Year[i],7,
+                      c(prop.breeding.f$breeding[i],
+                        (prop.breeding.f$total[i]- prop.breeding.f$breeding[i])),
+                      radius=0.4,col=c("darkgrey","white")),
+         
+         floating.pie(prop.breeding.f$Year[i],7,
+                      c(prop.breeding.f$breeding[i]+0.01,
+                        (prop.breeding.f$total[i]- prop.breeding.f$breeding[i])),
+                      radius=0.4,col=c("darkgrey","white")))
+} 
+mtext(side = 3, line = 1, 'a)', adj = -.09,font=2)
+legend("topright",xpd=T, legend=c("Breeding females", paste(sites)), pch=c(21,15,16),
+       pt.bg="darkgrey",
+       cex=1, pt.cex = c(3.8,1,1),
+       col=c("black","black","blue"),box.col=NA,inset=c(-.3,0))  
+
+par(mar=c(4.1, 4.1, 0, 11))
 matplot(years.m, (kow.x.ZC.1.TN.r), xlim=c(1999, 2016), ylim = c(0,8), type="l",lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
         bty="l", font.lab=2)
 polygon(c(years.m,rev(years.m)),c(t(kow.x.ZC.1.TN.LC.r), rev( t(kow.x.ZC.1.TN.UC.r))) ,
         col = adjustcolor("grey90", 0.9), border = NA)
 matlines(years.m, (kow.x.ZC.1.TN.r), lwd=1)
 matpoints(years.m,t(kowari.l),pch=15:16, cex =1, col=c("black", "blue"))
-#mtext("(c)",3, adj=0, line=2)
 
-#mtext("Year",1, adj=0.5, line=3.5, font=2)
-#mtext("Captures per 100 trap nights", 2, adj=0.4,line=3.2, font=2)
-par(xpd=T)
-for(i in 1:length(prop.breeding.f$pro.breed)){
-  ifelse(prop.breeding.f$breeding[i]>0, 
-  
-  floating.pie(prop.breeding.f$Year[i],8.5,
-             c(prop.breeding.f$breeding[i],
-               (prop.breeding.f$total[i]- prop.breeding.f$breeding[i])),
-             radius=0.4,col=c("darkgrey","white")),
-  
-  floating.pie(prop.breeding.f$Year[i],8.5,
-               c(prop.breeding.f$breeding[i]+0.01,
-                 (prop.breeding.f$total[i]- prop.breeding.f$breeding[i])),
-               radius=0.4,col=c("darkgrey","white")))
-  
-  
-}
-
-# par(new = T, xpd=F, mar=c(5.1, 4.1, 4.1, 11), family = "serif")
-# barplot(py.y$py, axes=F, xlab=NA, ylab=NA, #py.y$Year, pch=16, xlim=c(1999, 2016),bty="l"
-#       ylim = c(0,8), font.lab=2)
-# axis(side = 4, bty="l", at=c())
-# mtext(side = 4, line = 3, 'Number of pouch young', font=2)
-
-legend("topright",xpd=T, legend=c("Breeding females", paste(sites)), pch=c(21,15,16),
-       pt.bg="darkgrey",
-       cex=1, pt.cex = c(3.8,1,1),
-       col=c("black","black","blue"),box.col=NA,inset=c(-.33,0))
-
+mtext(side = 3, line = 1, 'b)', adj = -.09,font=2)
 par(mfrow = c(1,1), xpd=NA, mar=c(5, 4, 4, 2) + 0.1, family = "")
-# 
-# nf <- layout(matrix(c(2,0,1,3),2,2,byrow = TRUE), c(3,1), c(1,3), TRUE)
-# layout.show(nf)
-
 
 # mcmcplot(kowariMARSS)
 # 
