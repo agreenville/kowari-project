@@ -10,6 +10,8 @@ library(plyr)
 library(mcmcplots)
 library(plotrix)
 library(ggplot2)
+library(gridExtra)
+library(grid)
 
 source("R/MARSS_functions.R") #bayesian models
 source("R/summarySE.R")
@@ -214,18 +216,17 @@ female.cond.g <- ggplot(cond.f, aes(Year, res))+
 
 rain.g <- ggplot(subset(rain, Year >= 2000 & Year <=2015), aes(Year, Annual))+
   geom_bar(stat="identity")+
-  ggtitle("c)")+
+  ggtitle("d)")+
   scale_x_continuous(limits=c(1999, 2016))+
   ylab("Rainfall (mm)")+ xlab("")+
   theme_classic()
 
 
 #png(filename = "output/bodyCondition.png", width = 120, height = 100, units = 'mm', res = 600) 
-library(gridExtra)
-library(grid)
-grid.arrange(male.cond.g, female.cond.g, rain.g,
-             left=textGrob("",gp=gpar(fontsize=12),  rot=90),
-             bottom=textGrob("Year", gp=gpar(fontsize=12)))
+# 
+# grid.arrange(male.cond.g, female.cond.g, rain.g,
+#              left=textGrob("",gp=gpar(fontsize=12),  rot=90),
+#              bottom=textGrob("Year", gp=gpar(fontsize=12)))
 
 
 #dev.off()
@@ -264,8 +265,8 @@ par(mfrow = c(1,1))
 #
 # testes size condition
 
-plot(kowari.cond.m$Head_length, kowari.cond.m$Testes_width)
-abline(lm(kowari.cond.m$Testes_width~kowari.cond.m$Head_length))
+# plot(kowari.cond.m$Head_length, kowari.cond.m$Testes_width)
+# abline(lm(kowari.cond.m$Testes_width~kowari.cond.m$Head_length))
 
 # Residual deviations from the linear regression line
 testes.lm <- lm(log(Testes_width)~log(Head_length), data=kowari.cond.m)
@@ -295,18 +296,21 @@ male.teste.g <- ggplot(teste.m, aes(Year, teste.res))+
   geom_errorbar(aes(ymin=teste.res-ci, ymax=teste.res+ci), width=.1) +
   geom_hline(yintercept = 0, linetype=2) + 
   theme_classic()+
-  #scale_x_continuous(breaks = seq(2000, 2015, 1))+
   scale_x_continuous(limits=c(1999, 2016))+
-  #ggtitle("c)")+theme(plot.title = element_text(face="plain"),
-  #axis.text.x=element_blank())+
-  ylab("Residual value")+ xlab("")
+  ggtitle("c)")+ theme(plot.title = element_text(face="plain"),
+  axis.text.x=element_blank())+
+  ylab("Residual value")+xlab("")
 
-# body condition and male repro condition fig
+
+
+# body condition and male repro condition fig for paper
+#png(filename = "output/fig_bodyCondition.png", width = 100, height = 170, units = 'mm', res = 600) 
+
 grid.arrange(male.cond.g, female.cond.g, male.teste.g, rain.g, nrow=4, 
              left=textGrob("",gp=gpar(fontsize=12),  rot=90),
              bottom=textGrob("Year", gp=gpar(fontsize=12)))
 
-
+# dev.off()
 
 # lm of individual teste condition (residuals) and rain
 # join rain to kowari data
@@ -366,7 +370,7 @@ plot(breed.py.lag.glm)
 plot(breed.py.glm)
 par(mfrow = c(1,1))
 
-# plot 
+# plot model
 new.data <- data.frame(lag.1=seq(min(K.females.rain$lag.1, na.rm=TRUE),
                 max(K.females.rain$lag.1,na.rm=TRUE), by=1))
 breed.py.fit <-predict(breed.py.lag.glm, newdata=new.data, se=TRUE, type = "response")
@@ -495,42 +499,56 @@ detach.jags()
 #par(mfrow = c(1,1), xpd=NA, mar=c(5, 4, 4, 2) + 0.1, family = "")
 #######
 
+# fig for female reproduction and long-term dynamics for paper
+
+#png(filename = "output/fig_kowari_1State.png", width = 200, height = 160, units = 'mm', res = 300) 
+
 par(mfrow = c(2,1), xpd=F, mar=c(2, 4.1, 3.1, 11), family = "serif")
-plot(py.y$Year, py.y$Num_young, xaxt="n", xlab=NA, ylab="Pouch young",bty="l", pch=16, xlim=c(1999, 2016),
-        ylim = c(0,6), font.lab=2)
+plot(py.y$Year, py.y$Num_young, xaxt="n", xlab=NA, ylab="Pouch young",bty="l",
+     pch=18, xlim=c(1999, 2016),ylim = c(0,6), font.lab=2, cex=1.5)
   axis(1, at=c(2000,2005,2010,2015) ,labels=NA)
   arrows(py.y$Year, py.y$Num_young-py.y$ci, py.y$Year, py.y$Num_young+py.y$ci,
          length=0.05, angle=90, code=3)
-par(xpd=T)
-for(i in 1:length(prop.breeding.f$pro.breed)){
-  ifelse(prop.breeding.f$breeding[i]>0, 
+
+  par(xpd=T)
+  for(i in 1:length(prop.breeding.f$pro.breed)){
+    ifelse(prop.breeding.f$breeding[i]>0, 
          
          floating.pie(prop.breeding.f$Year[i],7,
                       c(prop.breeding.f$breeding[i],
                         (prop.breeding.f$total[i]- prop.breeding.f$breeding[i])),
                       radius=0.4,col=c("darkgrey","white")),
          
-         floating.pie(prop.breeding.f$Year[i],7,
+         floating.pie(prop.breeding.f$Year[i],7,    #prop.breeding.f$Year
                       c(prop.breeding.f$breeding[i]+0.01,
                         (prop.breeding.f$total[i]- prop.breeding.f$breeding[i])),
                       radius=0.4,col=c("darkgrey","white")))
-} 
-mtext(side = 3, line = 1, 'a)', adj = -.09,font=2)
-legend("topright",xpd=T, legend=c("Breeding females", paste(sites)), pch=c(21,15,16),
+  } 
+  mtext(side = 3, line = 1, 'a)', adj = -.09,font=2)
+  
+  legend("topright",xpd=T, legend=c("Breeding females", "Pouch young" ,paste(sites)),
+         pch=c(21,18,15,16),
        pt.bg="darkgrey",
-       cex=1, pt.cex = c(3.8,1,1),
-       col=c("black","black","blue"),box.col=NA,inset=c(-.3,0))  
+       cex=1, pt.cex = c(3.8,1.5,1,1),
+       col=c("black","black","black","blue"),box.col=NA,inset=c(-.3,0))  
 
 par(mar=c(4.1, 4.1, 0, 11))
-matplot(years.m, (kow.x.ZC.1.TN.r), xlim=c(1999, 2016), ylim = c(0,8), type="l",lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
+matplot(years.m, (kow.x.ZC.1.TN.r), xlim=c(1999, 2016), ylim = c(0,8), type="l",
+        lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
         bty="l", font.lab=2)
-polygon(c(years.m,rev(years.m)),c(t(kow.x.ZC.1.TN.LC.r), rev( t(kow.x.ZC.1.TN.UC.r))) ,
+  polygon(c(years.m,rev(years.m)),c(t(kow.x.ZC.1.TN.LC.r), rev( t(kow.x.ZC.1.TN.UC.r))) ,
         col = adjustcolor("grey90", 0.9), border = NA)
-matlines(years.m, (kow.x.ZC.1.TN.r), lwd=1)
-matpoints(years.m,t(kowari.l),pch=15:16, cex =1, col=c("black", "blue"))
+  matlines(years.m, (kow.x.ZC.1.TN.r), lwd=1)
+  matpoints(years.m,t(kowari.l),pch=15:16, cex =1, col=c("black", "blue"))
 
-mtext(side = 3, line = 1, 'b)', adj = -.09,font=2)
+  mtext(side = 3, line = 1, 'b)', adj = -.09,font=2)
 par(mfrow = c(1,1), xpd=NA, mar=c(5, 4, 4, 2) + 0.1, family = "")
+
+
+# dev.off()
+
+
+
 
 # mcmcplot(kowariMARSS)
 # 
