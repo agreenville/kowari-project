@@ -20,7 +20,7 @@ source("R/summarySE.R")
 # load data
 #######################
 
- mammal data
+# mammal data
 kowari <- read.csv("data/DEWNRSA_Kowari_captures.csv", header=T) 
 head(kowari)
 
