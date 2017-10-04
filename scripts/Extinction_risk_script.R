@@ -201,6 +201,17 @@ extinct.graph.fn <-function(out, lab){
 }
 
 
+extinct.graph.paper.fn <-function(out, lab){
+  plot(out[[1]], out[[2]][,nsim+1], xlab="", 
+       ylab="", ylim=c(0,1), typ="l", bty="l")
+  title(paste(lab))
+  #lines(out[[1]],out[[2]][,nsim+1],type="l",col="black",lwd=2,lty=1)
+  lines(out[[1]], apply(out[[2]][,1:nsim],1,quantile,0.975), lty=2, col="black")
+  lines(out[[1]], apply(out[[2]][,1:nsim],1,quantile,0.025),lty=2, col="black")
+  
+  
+}
+
 # IUCN criterion A
 
 #png(filename = "output/fig_PVA_Bayes_CrA.png", width = 120, height = 170, units = 'mm', res = 300) 
@@ -243,7 +254,25 @@ mtext("Years", 1, line=3)
 
 #dev.off()  
 
+# criterion E for paper
 
+#png(filename = "output/fig4_PVA_bayes_CrE.png", width = 120, height = 170, units = 'mm', res = 300) 
+
+par(mfrow=c(3,1), mar=c(5.1, 4.1, 4.1, 2))
+extinct.graph.paper.fn(extinct.E.CR, "")
+  mtext("a)", 3, line=1, adj=-0.01)
+  abline(h=0.5, lty=2, col="red",  xpd=F)
+extinct.graph.paper.fn(extinct.E.EN, "")
+  mtext("b)", 3, line=1, adj=-0.01)
+  abline(h=0.2, lty=2, col="red", xpd=F)
+extinct.graph.paper.fn(extinct.E.VU, "")
+  mtext("c)", 3, line=1, adj=-0.01)
+  abline(h=0.1, lty=2, col="red", xpd=F)
+par(mfrow = c(1,1), mar=c(5, 4, 4, 2) + 0.1)
+mtext("Probability of 99% population decline", 2, line=3)
+mtext("Years", 1, line=3)
+
+#dev.off()  
 
 
 
