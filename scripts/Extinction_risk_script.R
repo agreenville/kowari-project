@@ -256,7 +256,7 @@ mtext("Years", 1, line=3)
 
 # criterion E for paper
 
-#png(filename = "output/fig4_PVA_bayes_CrE.png", width = 120, height = 170, units = 'mm', res = 300) 
+#png(filename = "output/fig4_PVA_bayes_CrE.png", width = 100, height = 200, units = 'mm', res = 300) 
 
 par(mfrow=c(3,1), mar=c(5.1, 4.1, 4.1, 2))
 extinct.graph.paper.fn(extinct.E.CR, "")
