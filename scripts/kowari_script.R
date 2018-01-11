@@ -92,7 +92,28 @@ rain$lag.1 <- c(NA, rain$Annual[-length(rain$Annual)])
 ggplot(rain, aes(Year, Annual))+
   geom_bar(stat="identity")+
   theme_classic()
-  
+
+# load fractual cover from grids
+Pan.frac <- read.csv("data/Pan_Year_frac.csv", header=T) 
+head(Pan.frac)
+
+# add 1 yr lag coln
+Pan.frac$Green_Mean.lag.1 <- c(NA, Pan.frac$Green_Mean[-length(Pan.frac$Green_Mean)])
+Pan.frac$NonGreen_Mean.lag.1 <- c(NA, Pan.frac$NonGreen_Mean[-length(Pan.frac$NonGreen_Mean)])
+Pan.frac$Bare_Mean.lag.1 <- c(NA, Pan.frac$Bare_Mean[-length(Pan.frac$Bare_Mean)])
+
+Wal.frac <- read.csv("data/Wal_Year_frac.csv", header=T) 
+head(Wal.frac)
+
+# add 1 yr lag coln
+Wal.frac$Green_Mean.lag.1 <- c(NA, Wal.frac$Green_Mean[-length(Wal.frac$Green_Mean)])
+Wal.frac$NonGreen_Mean.lag.1 <- c(NA, Wal.frac$NonGreen_Mean[-length(Wal.frac$NonGreen_Mean)])
+Wal.frac$Bare_Mean.lag.1 <- c(NA, Wal.frac$Bare_Mean[-length(Wal.frac$Bare_Mean)])
+
+
+# combine both sites together
+frac.cover <- rbind(Pan.frac, Wal.frac)
+
   
 ######################################################
 # data for repro and condition 
@@ -231,10 +252,17 @@ rain.g <- ggplot(subset(rain, Year >= 2000 & Year <=2015), aes(Year, Annual))+
 
 #dev.off()
 
-# lm of individual animals boby condition (residuals) and rain
+####################################
+# lm of individual animals boby condition (residuals) and rain and fractual cover
 # join rain to kowari data
 kowari.cond.f.rain <- join(kowari.cond.f, rain, "Year") # female
 kowari.cond.m.rain <- join(kowari.cond.m, rain, "Year") # male
+
+# join fractual cover data
+
+kowari.cond.f.rain.frac <- join(kowari.cond.f.rain, frac.cover, c("Year", "Site")) # female
+kowari.cond.m.rain.frac <- join(kowari.cond.m.rain, frac.cover, c("Year", "Site")) # male
+
 
 female.cond.rain.lm <- lm(res~Annual, data=kowari.cond.f.rain)
   summary(female.cond.rain.lm)
@@ -257,6 +285,29 @@ par(mfrow = c(2,2))
 plot(male.cond.rain.lm)
 plot(male.cond.rain.lag.lm)
 par(mfrow = c(1,1))
+
+# frac cover
+female.cond.frac.lm <- lm(res~Green_Mean*NonGreen_Mean, data=kowari.cond.f.rain.frac)
+summary(female.cond.frac.lm)
+
+female.cond.frac.lag.lm <- lm(res~Green_Mean.lag.1*NonGreen_Mean.lag.1, data=kowari.cond.f.rain.frac)
+summary(female.cond.frac.lag.lm)
+
+par(mfrow = c(2,2))
+plot(female.cond.frac.lm)
+plot(female.cond.frac.lag.lm)
+mfrow = c(1,1)
+
+male.cond.frac.lm <- lm(res~Green_Mean*NonGreen_Mean, data=kowari.cond.m.rain.frac)
+summary(male.cond.frac.lm)
+
+male.cond.frac.lag.lm <- lm(res~Green_Mean.lag.1*NonGreen_Mean.lag.1, data=kowari.cond.m.rain.frac)
+summary(male.cond.frac.lag.lm)
+
+par(mfrow = c(2,2))
+plot(male.cond.frac.lm)
+plot(male.cond.frac.lag.lm)
+mfrow = c(1,1)
 
 
 

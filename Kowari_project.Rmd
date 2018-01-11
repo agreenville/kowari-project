@@ -1,0 +1,409 @@
+---
+title: "NESP Kowari project"
+output:
+  html_notebook: default
+  pdf_document: default
+  word_document: default
+---
+```{r,message=FALSE,include=FALSE}
+source("scripts/kowari_script.R")
+source("scripts/kowari_habitat_script.R")
+load("D:/Users/agre6595/Dropbox/Projects/NESP/Kowari project/workspaces/kowari_PVA_20170831.RData")
+
+```
+
+*Aaron Greenville*  
+    
+  
+  
+Kowari capture data from grids: PAN GRID and WAL GRID (approx. 25km apart).  
+South Australia.  
+
+
+**Summary so far:**  
+
+* The two Kowari populations exhibits synchrony. -> increase extinction risk.
+* local scale habitat factors important for predicting presence.  
+    + Sand Spread cover & Gibber pavement cover are most important.  
+* body and teste condition can change per year but not related to rainfall
+* proportion of females breeding (of total females captured) changes per year, but not related to rainfall
+* Number of pouch young influenced by rainfall
+* -ve population growth rate. PVA suggests kowari at these sites are endangered based on IUCN Red List criteria E (20% chance of extinction in 20 years).  
+  
+* At these sites kowari respond to habitat characteristics and increases in the number of  offspring when environmental conditions improve. However, body condition doesn't repond to environmental productivity and long-term population dynamics suggest a decline. This suggests an external threat is opperating that places stress on individuals in the population and reduces survivorship. Feral cats and/or grazing??
+
+
+**To do (opional extras):**  
+
+* large-scale habitat spatial analysis  
+
+  
+##Trapping effort per trip
+```{r}
+Trap.effort
+```
+
+##Trapping effort per year
+```{r}
+trap.effort.yr
+```
+
+##Body and reproductive condition
+
+###Body condition  
+
+Does body condition change over time for each sex and is it related to rainfall?
+
+The average body condition of the live adults, was compared for across each year by plotting log-body mass against log-head length of adults, omitting females with py (modified from Greenville and Dickman 2005). Residual deviations from the linear regression line were averaged for each year and plotted as an estimate of body condition. Data for the linear regression were taken from 2000 to 2015. Positive mean residual values indicate above-average body condition and negative mean residuals below-average condition.
+
+```{r, fig.width=6, fig.height=7}
+grid.arrange(male.cond.g, female.cond.g, male.teste.g, rain.g, nrow=4, 
+             left=textGrob("",gp=gpar(fontsize=12),  rot=90),
+             bottom=textGrob("Year", gp=gpar(fontsize=12)))
+```
+Fig. Mean a) Body condition of male kowari,  b) Body condition of female kowari, c) male testes condition and d) total annual rainfall from Birdsville for each survey year.  
+
+
+Influence of rainfall on body conditions. To test if rainfall influenced body condition, residuals (from above) for each animal were regressed against annual rainfall and annual rainfall from the year before.
+```{r}
+# females
+summary(female.cond.rain.lm) # annual rainfall
+summary(female.cond.rain.lag.lm) # lag annual rainfall by 1 yr
+```
+
+
+```{r}
+# males
+summary(male.cond.rain.lm) # annual rainfall
+summary(male.cond.rain.lag.lm) # lag annual rainfall by 1 yr
+```
+
+Influence of fractual cover (green and non-green) on body conditions. To test if fractual cover influenced body condition, residuals (from above) for each animal were regressed against annual fractual cover and annual fractual cover from the year before.
+```{r}
+# females
+summary(female.cond.frac.lm) # annual fractual cover
+summary(female.cond.frac.lag.lm) # lag annual fractual cover
+```
+
+
+```{r}
+# males
+summary(male.cond.frac.lm) # annual fractual cover
+summary(male.cond.frac.lag.lm) # lag annual fractual cover
+```
+
+####Reproductive condition
+Does reproductive condition change over time for each sex and is it related to rainfall?
+
+The average reproducive condition of the live adults, was compared for across each year by plotting log-teste length against log-head length (modified from Greenville and Dickman 2005). Residual deviations from the linear regression line were averaged for each year and plotted as an estimate of male reproductive condition. Data for the linear regression were taken from 2000 to 2015. Positive mean residual values indicate above-average body condition and negative mean residuals below-average condition.
+
+For females, the proportion of animals breeding (with py) were calculated for each year.
+
+
+```{r}
+male.teste.g
+
+```
+
+**Influence of rainfall on male reproductive condition.** To test if rainfall influenced reproductive condition, residuals from teste length (from above) for each animal were regressed against annual rainfall and annual rainfall from the year before.
+```{r}
+# Annual rainfall
+summary(teste.rain.lm)
+
+# lag annual rainfall
+summary(teste.rain.lag.lm)
+```
+
+**Influence of rainfall on female reproductive condition.**  
+Binomal regression (quasibinomial)- proportional odds. Proportion of females with py each year:
+
+```{r}
+# Annual rainfall
+summary(breed.f.glm)
+
+# lag annual rainfall 1 yr
+summary(breed.f.lag.glm)
+```
+
+Number of py per female and rainfall (quasipoisson glm for overdisperion):  
+
+```{r}
+# Annual rainfall
+summary(breed.py.glm)
+
+#lag annual rainfall 1 yr
+summary(breed.py.lag.glm)
+
+
+```
+
+```{r}
+plot(K.females.rain$lag.1, K.females.rain$Num_young, bty="l",
+     pch=16, xlab="Antecedent annual rainfall (mm)", ylab="Number of pouch young")
+  lines(new.data$lag.1, breed.py.fit$fit )
+  lines(new.data$lag.1, breed.py.fit$fit+1.96*breed.py.fit$se.fit, lty=2 )
+  lines(new.data$lag.1, breed.py.fit$fit-1.96*breed.py.fit$se.fit, lty=2 )
+```
+Model fit.
+
+
+##Temporal analyses
+
+Are kowari's synchronous across the two sub-populations or asynchronous? 
+
+
+### MARSS 1-state model with density independence 
+
+```{r}
+kowariMARSS
+```
+
+```{r}
+caterplot(kowariMARSS, "x")
+caterplot(kowariMARSS, "A")
+caterplot(kowariMARSS, parms = c("U", "B","sigmaQ", "sigmaR"),
+          style= "gray")
+
+```
+
+
+### MARSS 2-state model with density independence
+```{r}
+kowariMARSS.2
+```
+
+```{r}
+caterplot(kowariMARSS.2, "x")
+caterplot(kowariMARSS.2, parms = c("U", "B","sigmaQ", "sigmaR"),
+            style= "gray")  
+```
+
+
+### MARSS Figures:  
+```{r, echo=FALSE, fig.width=8, fig.height=7}
+par(mfrow = c(2,1), xpd=F, mar=c(2, 4.1, 3.1, 11), family = "serif")
+plot(py.y$Year, py.y$Num_young, xaxt="n", xlab=NA, ylab="Pouch young",bty="l",
+     pch=18, xlim=c(1999, 2016),ylim = c(0,6), font.lab=2, cex=1.5)
+  axis(1, at=c(2000,2005,2010,2015) ,labels=NA)
+  arrows(py.y$Year, py.y$Num_young-py.y$ci, py.y$Year, py.y$Num_young+py.y$ci,
+         length=0.05, angle=90, code=3)
+
+  par(xpd=T)
+  for(i in 1:length(prop.breeding.f$pro.breed)){
+    ifelse(prop.breeding.f$breeding[i]>0, 
+         
+         floating.pie(prop.breeding.f$Year[i],7,
+                      c(prop.breeding.f$breeding[i],
+                        (prop.breeding.f$total[i]- prop.breeding.f$breeding[i])),
+                      radius=0.4,col=c("darkgrey","white")),
+         
+         floating.pie(prop.breeding.f$Year[i],7,    #prop.breeding.f$Year
+                      c(prop.breeding.f$breeding[i]+0.01,
+                        (prop.breeding.f$total[i]- prop.breeding.f$breeding[i])),
+                      radius=0.4,col=c("darkgrey","white")))
+  } 
+  mtext(side = 3, line = 1, 'a)', adj = -.09,font=2)
+  
+  legend("topright",xpd=T, legend=c("Breeding females", "Pouch young" ,paste(sites)),
+         pch=c(21,18,15,16),
+       pt.bg="darkgrey",
+       cex=1, pt.cex = c(3.8,1.5,1,1),
+       col=c("black","black","black","blue"),box.col=NA,inset=c(-.3,0))  
+
+par(mar=c(4.1, 4.1, 0, 11))
+matplot(years.m, (kow.x.ZC.1.TN.r), xlim=c(1999, 2016), ylim = c(0,8), type="l",
+        lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
+        bty="l", font.lab=2)
+  polygon(c(years.m,rev(years.m)),c(t(kow.x.ZC.1.TN.LC.r), rev( t(kow.x.ZC.1.TN.UC.r))) ,
+        col = adjustcolor("grey90", 0.9), border = NA)
+  matlines(years.m, (kow.x.ZC.1.TN.r), lwd=1)
+  matpoints(years.m,t(kowari.l),pch=15:16, cex =1, col=c("black", "blue"))
+
+  mtext(side = 3, line = 1, 'b)', adj = -.09,font=2)
+par(mfrow = c(1,1), xpd=NA, mar=c(5, 4, 4, 2) + 0.1, family = "")
+
+```
+Fig. a) mean number of pouch young per year and proportion of reproductive females in population (total female population). b) One-state model.
+
+```{r, echo=FALSE}
+par(mfrow = c(1,1), xpd=F, mar=c(5.1, 4.1, 4.1, 11), family = "serif")
+
+matplot(years.m, (kow.x.2.TN.r), ylim = c(0,15), type="l",lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
+        bty="l", font.lab=2)
+  polygon(c(years.m,rev(years.m)),c(t(kow.x.2.TN.LC.r), rev( t(kow.x.2.TN.UC.r))) ,
+        col = adjustcolor("grey90", 0.9), border = NA)
+  polygon(c(years.m,rev(years.m)),c(t(kow.x.2.TN.2.LC.r), rev( t(kow.x.2.TN.2.UC.r))) ,
+        col = adjustcolor("blue", 0.2), border = NA)
+
+  matlines(years.m, (kow.x.2.TN.r), lwd=2)
+  matlines(years.m, (kow.x.2.TN.2.r), lwd=2, col="blue")
+  matpoints(years.m,t(kowari.l),pch=15:23, cex =1, col=c("black", "blue"))
+
+  legend("topright",xpd=T, legend=sites, pch=15:23, cex=1, pt.cex = 1,
+       col=c("black","blue"),box.col=NA,inset=c(-.33,0))
+```
+
+Fig. 2-state model.
+
+
+## PVA
+
+PVA using count data. Dennis *et al.* (1991) illustrate how treating a time series of population counts as a diffusion process can yield estimates of extinction risk. Assumes density independence.  
+
+see: Dennis B., Munholland P. L. & Scott J. M. (1991) Estimation of Growth and Extinction Parameters for Endangered Species. *Ecol. Monogr.* 61, 115-43.  
+
+MARSS models used to modify Dennis et al PVA model to include observation error.  
+
+See: Holmes E. E., Ward E. J. & Scheuerell M. D. (2012) *Analysis of multivariate time-series using the MARSS package.* NOAA Fisheries, Seattle, USA.
+
+Mean growth rate, process error and observation error estimated from MARSS 1-state model. Note large confidence interval for growth rate. Elderd *et al.* (2003) ran simulations, which showed that the above approach works ok and confidence intervals take into account variation in growth rate.
+
+see: Elderd B., Shahani P. & Doak D. (2003) The problems and potential of count-based population viability analyses. In: *Population Viability in Plants*  pp. 173-202. Springer.
+
+10 000 simulations were run to calc projected population growth rates, process error and obs error for MARSS and Dennis methods (no obs error for Dennis - based on lm). Means for each were taken from the 10 000 sim runs. diffusion process was run for each pop sim run (bootstrapping) and for the mean values. CI were calculated from the 10 000 sim run diffusion process results. Bootstrapping/sims done on HPC (add ref for HPC).  
+
+The cumulative distribution function of extinction time is used and based on IUCN red list criteria. i.e. what is the probabilty of y% population decline over x years?  
+
+**Acknowledgements for HPC**  
+The authors acknowledge the University of Sydney HPC service at The University of Sydney for providing {HPC, visualisation, database, or grid} resources that have contributed to the research results reported within this paper.
+URL: http://sydney.edu.au/research_support/
+
+### Probabilty of 90% population decline over 100 years  
+  
+
+```{r, echo=FALSE}
+extinct.graph.fn(extinct.100.90, "90% population decline")
+mtext("Probability of population decline", 2, line=3)
+mtext("Years", 1, line=3)
+legend("bottomright",c("1-state model","MARSS", "Dennis", "MARSS 95% CI", "Dennis 95% CI"),
+       pch=c(1,-1,-1, -1, -1), col=c(1,"red", "black", "red", "black"),
+       lty=c(-1,1,1,2,2),lwd=c(-1,2,2,1,1),bty="n")
+```
+
+### Probabilty of decline: IUCN guidelines.
+
+####**IUCN criterion A** 
+
+80% decline over 10 years for CRITICALLY ENDANGERED  
+50% decline over 10 years for ENDANGERED  
+30% decline over 10 years for VULNERABLE  
+
+```{r,echo=FALSE, fig.width=6, fig.height=7}
+par(mfrow=c(3,1), mar=c(5.1, 4.1, 4.1, 9.5))
+extinct.graph.fn(extinct.80, "CR: 80% population decline")
+  abline(h=1, lty=2, col="blue")
+  legend("topright",c("1-state model","MARSS", "Dennis", "MARSS 95% CI", "Dennis 95% CI"),
+       pch=c(1,-1,-1, -1, -1), col=c(1,"red", "black", "red", "black"),
+       lty=c(-1,1,1,2,2),lwd=c(-1,2,2,1,1),bty="n",xpd=T, inset=c(-0.3,-0.1), box.col="white")
+  
+extinct.graph.fn(extinct.50, "EN: 50% population decline")
+  abline(h=1, lty=2, col="blue")
+extinct.graph.fn(extinct.30, "VU: 30% population decline")
+  abline(h=1, lty=2, col="blue")
+par(mfrow = c(1,1), mar=c(5, 4, 4, 2) + 0.1)
+mtext("Probability of population decline", 2, line=3)
+mtext("Years", 1, line=3)
+```
+
+####**IUCN criterion E**   
+50% chance of extinction in 10 years for CRITICALLY ENDANGERED  
+20% chance of extinction in 20 years for ENDANGERED  
+10% chance of extinction in 100 years for VULNERABLE  
+
+Extinction defined as 99% population decline over above time periods.  
+
+```{r, echo=FALSE, fig.width=6, fig.height=7}
+par(mfrow=c(3,1), mar=c(5.1, 4.1, 4.1, 9.5))
+extinct.graph.fn(extinct.E.CR, "CR: 50% chance of extinction in 10 years")
+  legend("topright",c("1-state model","MARSS", "Dennis", "MARSS 95% CI", "Dennis 95% CI"),
+       pch=c(1,-1,-1, -1, -1), col=c(1,"red", "black", "red", "black"),
+       lty=c(-1,1,1,2,2),lwd=c(-1,2,2,1,1),bty="n", xpd=T, inset=c(-0.3,-0.1))
+    abline(h=0.5, lty=2, col="blue",  xpd=F)
+extinct.graph.fn(extinct.E.EN, "EN: 20% chance of extinction in 20 years")
+  abline(h=0.2, lty=2, col="blue", xpd=F)
+extinct.graph.fn(extinct.E.VU, "VU: 10% chance of extinction in 100 years")
+  abline(h=0.1, lty=2, col="blue", xpd=F)
+par(mfrow = c(1,1), mar=c(5, 4, 4, 2) + 0.1)
+mtext("Probability of 99% population decline", 2, line=3)
+mtext("Years", 1, line=3)
+```
+
+#### **IUCN criterion E for paper**
+```{r, echo=FALSE, fig.width=6, fig.height=7}
+par(mfrow=c(3,1), mar=c(5.1, 4.1, 4.1, 2))
+extinct.graph.paper.fn(extinct.E.CR, "")
+  mtext("a)", 3, line=1, adj=-0.01)
+  abline(h=0.5, lty=2, col="red",  xpd=F)
+extinct.graph.paper.fn(extinct.E.EN, "")
+  mtext("b)", 3, line=1, adj=-0.01)
+  abline(h=0.2, lty=2, col="red", xpd=F)
+extinct.graph.paper.fn(extinct.E.VU, "")
+  mtext("c)", 3, line=1, adj=-0.01)
+  abline(h=0.1, lty=2, col="red", xpd=F)
+par(mfrow = c(1,1), mar=c(5, 4, 4, 2) + 0.1)
+mtext("Probability of 99% population decline", 2, line=3)
+mtext("Years", 1, line=3)
+```
+
+
+## Habitat analysis  
+
+nMDS on habitat variables measured around traps on both grids.  
+
+Habitat_LU_cover  
+**cover code cover description**  
+ 1	< 5%  
+ 2	5 - 25%  
+ 3	25 - 50%  
+ 4	50 - 75%  
+ 5	> 75%  
+ 
+ Gibber Size  	
+ 1	pebble <50mm  
+ 2	cobble 50-250mm  
+ 3	boulder >250mm  
+
+**Habitat variables**
+```{r}
+colnames(kowari.habitat.m)
+```
+
+### NMDS
+```{r}
+NMDS.hab
+```
+
+```{r}
+ggplot.MDS.fn(NMDS.hab, kowari.factor.df, kowari.factor.df$present)
+```
+
+### Multi-model inference: habitat features  
+
+####**Binomial glm**
+habitat features predicting kowari presence  
+
+**Full model:**
+```{r}
+summary(kowari.glm)
+
+par(mfrow = c(2,2))
+plot(kowari.glm)
+par(mfrow = c(1,1))
+```
+
+####**Top models from AICc**  
+delta < 2
+
+```{r, fig.width=7, fig.height=6}
+plot(subset(dd, delta < 2), xpd=T)
+subset(dd, delta < 2)
+```
+
+####**Model averaging top models**
+```{r}
+summary(model.avg(top.model))
+```
+```{r}
+confint(model.avg(top.model))
+```
+
