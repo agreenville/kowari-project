@@ -365,7 +365,11 @@ grid.arrange(male.cond.g, female.cond.g, male.teste.g, rain.g, nrow=4,
 
 # lm of individual teste condition (residuals) and rain
 # join rain to kowari data
-kowari.teste.rain <- join(teste.m, rain, "Year") # male
+kowari.teste.rain <- join(kowari.cond.m, rain, "Year") # male
+
+# join fractual cover data
+kowari.teste.rain.frac <- join(kowari.teste.rain, frac.cover, c("Year", "Site")) # male
+
 
 teste.rain.lag.lm <- lm(teste.res~lag.1, data=kowari.teste.rain)
 summary(teste.rain.lag.lm)
@@ -378,6 +382,24 @@ par(mfrow = c(2,2))
 plot(teste.rain.lag.lm)
 plot(teste.rain.lm)
 par(mfrow = c(1,1))
+
+# frac cover
+teste.frac.lag.lm <- lm(teste.res~Green_Mean.lag.1*NonGreen_Mean.lag.1,
+                        data=kowari.teste.rain.frac)
+summary(teste.frac.lag.lm)
+
+teste.frac.lm <- lm(teste.res~Green_Mean*NonGreen_Mean,
+                    data=kowari.teste.rain.frac)
+summary(teste.frac.lm)
+
+
+par(mfrow = c(2,2))
+plot(teste.frac.lag.lm)
+plot(teste.frac.lm)
+par(mfrow = c(1,1))
+
+
+
 
 # proportion of females breeding/yr
 # join with rainfall
@@ -407,6 +429,9 @@ K.females <- subset(kowari.grid.no.recap.yr, SEX=="F")
 # join with rainfall
 K.females.rain <- join(K.females, rain, "Year") # 
 
+# join with fractual cover
+K.females.rain.frac <- join(K.females.rain, frac.cover, c("Year", "Site"))
+
 plot(K.females.rain$lag.1, K.females.rain$Num_young)
 abline(lm(K.females.rain$Num_young~K.females.rain$lag.1))
 
@@ -432,6 +457,27 @@ plot(K.females.rain$lag.1, K.females.rain$Num_young, bty="l",
   lines(new.data$lag.1, breed.py.fit$fit+1.96*breed.py.fit$se.fit, lty=2 )
   lines(new.data$lag.1, breed.py.fit$fit-1.96*breed.py.fit$se.fit, lty=2 )
 
+# frac cover
+
+breed.py.lag.frac.glm = glm(Num_young ~ Green_Mean.lag.1*NonGreen_Mean.lag.1,
+                            family = "quasipoisson", data = K.females.rain.frac)
+summary(breed.py.lag.frac.glm)
+  
+breed.py.frac.glm = glm(Num_young ~ Green_Mean*NonGreen_Mean,
+                        family = "quasipoisson", data = K.females.rain.frac)
+summary(breed.py.frac.glm)
+  
+par(mfrow = c(2,2))
+plot(breed.py.lag.frac.glm)
+plot(breed.py.frac.glm)
+par(mfrow = c(1,1))  
+  
+  
+  
+  
+  
+  
+  
 ###############################################################################
 # MARSS temporal and spatial dynamics
 #

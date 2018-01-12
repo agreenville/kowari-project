@@ -114,6 +114,15 @@ summary(teste.rain.lm)
 summary(teste.rain.lag.lm)
 ```
 
+To test if fractual cover influenced reproductive condition, residuals from teste length (from above) for each animal were regressed against annual fractual cover and annual fractual cover from the year before.
+```{r}
+# Annual fractual cover
+summary(teste.frac.lm)
+
+# lag annual fractual cover
+summary(teste.frac.lag.lm)
+```
+
 **Influence of rainfall on female reproductive condition.**  
 Binomal regression (quasibinomial)- proportional odds. Proportion of females with py each year:
 
@@ -145,6 +154,16 @@ plot(K.females.rain$lag.1, K.females.rain$Num_young, bty="l",
   lines(new.data$lag.1, breed.py.fit$fit-1.96*breed.py.fit$se.fit, lty=2 )
 ```
 Model fit.
+
+
+Number of py per female and fractual cover (quasipoisson glm for overdisperion):  
+```{r}
+# Annual fractual cover
+summary(breed.py.frac.glm)
+
+#lag annual fractual cover 1 yr
+summary(breed.py.lag.frac.glm)
+```
 
 
 ##Temporal analyses
