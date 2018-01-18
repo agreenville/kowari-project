@@ -22,7 +22,7 @@ source("R/summarySE.R")
 
 # mammal data
 kowari <- read.csv("data/DEWNRSA_Kowari_captures.csv", header=T) 
-head(kowari)
+ head(kowari)
 
 # add year and month
 kowari.yr <- cbind(kowari, Year=format(as.Date(kowari$Obs.Capt.date, format="%d/%m/%Y"),"%Y"),
