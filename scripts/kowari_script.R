@@ -500,6 +500,14 @@ print(Z.1)
 # Y captures/ 100 TN
 kowari.log <- log(kowari.l+1)
 
+# forecast
+# kowari.log <- cbind(kowari.log, rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2),
+#       rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2),
+#       rep(NA,2), rep(NA,2), rep(NA,2))
+# 
+# years.m <- seq(2000, 2035, 1)
+
+
 # save data for HPC
 #save(kowari.log, file="data/HPC_kowari_log.Rdata")
 
@@ -644,8 +652,21 @@ par(mfrow = c(1,1), xpd=NA, mar=c(5, 4, 4, 2) + 0.1, family = "")
 
 # dev.off()
 
+# forecast fig for herman slade. uncomment forecast code above and run model before plotting
 
-
+# png(filename = "output/fig_kowari_1State_forecast.png", width = 200, height = 120, units = 'mm', res = 300) 
+# 
+# matplot(years.m[1:25], (kow.x.ZC.1.TN.r)[1:25], xlim=c(1999, 2025), ylim = c(0,8), type="l",
+#         lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
+#         bty="l", font.lab=2)
+# polygon(c(years.m[1:25],rev(years.m[1:25])),c(t(kow.x.ZC.1.TN.LC.r)[1:25], rev( t(kow.x.ZC.1.TN.UC.r)[1:25])) ,
+#         col = adjustcolor("grey90", 0.9), border = NA)
+# axis(1, labels = FALSE)
+# matlines(years.m[1:16], (kow.x.ZC.1.TN.r)[1:16], lwd=1)
+# matlines(years.m[16:25], (kow.x.ZC.1.TN.r)[16:25], lwd=1, lty=2)
+# matpoints(years.m[1:16],t(kowari.l),pch=15, cex =1, col=c("black"))
+# 
+# dev.off()
 
 # mcmcplot(kowariMARSS)
 # 
