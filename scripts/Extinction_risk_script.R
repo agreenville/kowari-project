@@ -256,7 +256,7 @@ mtext("Years", 1, line=3)
 
 # criterion E for paper
 
-#png(filename = "output/fig4_PVA_bayes_CrE.png", width = 100, height = 200, units = 'mm', res = 300) 
+png(filename = "output/fig4_PVA_bayes_CrE.png", width = 100, height = 200, units = 'mm', res = 300) 
 
 par(mfrow=c(3,1), mar=c(5.1, 4.1, 4.1, 2))
 extinct.graph.paper.fn(extinct.E.CR, "")
@@ -272,7 +272,43 @@ par(mfrow = c(1,1), mar=c(5, 4, 4, 2) + 0.1)
 mtext("Probability of 99% population decline", 2, line=3)
 mtext("Years", 1, line=3)
 
-#dev.off()  
+dev.off()  
+
+######################################
+# for Herman Slade grant
+# forecast fig for herman slade. uncomment forecast code in kowari script and run model before plotting
+
+# png(filename = "output/fig_kowari_1State_forecast_HS.png", width = 150, height = 200, units = 'mm', res = 300)
+# 
+par(mfrow=c(2,1)) #, mar=c(5.1, 4.1, 4.1, 2))
+matplot(years.m[1:25], (kow.x.ZC.1.TN.r)[1:25], xlim=c(1999, 2025), ylim = c(0,8), type="l",
+        lwd=1, xlab="", ylab="Captures (100 trap nights)",
+        bty="l", font.lab=2)
+polygon(c(years.m[1:25],rev(years.m[1:25])),c(t(kow.x.ZC.1.TN.LC.r)[1:25], rev( t(kow.x.ZC.1.TN.UC.r)[1:25])) ,
+        col = adjustcolor("grey90", 0.9), border = NA)
+axis(1, labels = FALSE)
+matlines(years.m[1:16], (kow.x.ZC.1.TN.r)[1:16], lwd=1)
+matlines(years.m[16:25], (kow.x.ZC.1.TN.r)[16:25], lwd=1, lty=2)
+matpoints(years.m[1:16],t(kowari.l),pch=15, cex =1, col=c("black"))
+mtext("a)", 3, line=1, adj=-0.01)
+
+extinct.graph.paper.fn(extinct.E.EN, "")
+mtext("b)", 3, line=1, adj=-0.01)
+abline(h=0.2, lty=2, col="red", xpd=F)
+mtext("Probability of 99% population decline", 2, line=3, font=2)
+mtext("Years", 1, line=3, font=2)
+ 
+par(mfrow = c(1,1), mar=c(5, 4, 4, 2) + 0.1)
+# 
+# dev.off()
+
+
+
+
+
+
+
+
 
 
 
