@@ -584,43 +584,6 @@ detach.jags()
 ###############################################
 # adding symbols for sites.
 ###############################################
-
-#png(filename = "output/fig_kowari_1State.png", width = 200, height = 160, units = 'mm', res = 300) 
-# 1 state
-# par(mfrow = c(1,1), xpd=F, mar=c(5.1, 4.1, 4.1, 11), family = "serif")
-# 
-# matplot(years.m, (kow.x.ZC.1.TN.r), xlim=c(1999, 2016), ylim = c(0,8), type="l",lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
-#         bty="l", font.lab=2)
-# polygon(c(years.m,rev(years.m)),c(t(kow.x.ZC.1.TN.LC.r), rev( t(kow.x.ZC.1.TN.UC.r))) ,
-#         col = adjustcolor("grey90", 0.9), border = NA)
-# matlines(years.m, (kow.x.ZC.1.TN.r), lwd=1)
-# matpoints(years.m,t(kowari.l),pch=15:16, cex =1, col=c("black", "blue"))
-# 
-# par(xpd=T)
-# for(i in 1:length(prop.breeding.f$pro.breed)){
-#   ifelse(prop.breeding.f$breeding[i]>0, 
-#   
-#   floating.pie(prop.breeding.f$Year[i],8.5,
-#              c(prop.breeding.f$breeding[i],
-#                (prop.breeding.f$total[i]- prop.breeding.f$breeding[i])),
-#              radius=0.4,col=c("darkgrey","white")),
-#   
-#   floating.pie(prop.breeding.f$Year[i],8.5,
-#                c(prop.breeding.f$breeding[i]+0.01,
-#                  (prop.breeding.f$total[i]- prop.breeding.f$breeding[i])),
-#                radius=0.4,col=c("darkgrey","white")))
-#   
-#   
-# }
-# 
-# legend("topright",xpd=T, legend=c("Breeding females", paste(sites)), pch=c(21,15,16),
-#        pt.bg="darkgrey",
-#        cex=1, pt.cex = c(3.8,1,1),
-#        col=c("black","black","blue"),box.col=NA,inset=c(-.33,0))
-# 
-#par(mfrow = c(1,1), xpd=NA, mar=c(5, 4, 4, 2) + 0.1, family = "")
-#######
-
 # fig for female reproduction and long-term dynamics 
 
 # #png(filename = "output/fig_3_kowari_1State.png", width = 200, height = 160, units = 'mm', res = 300) 
@@ -666,8 +629,9 @@ detach.jags()
 #   mtext(side = 3, line = 1, 'b)', adj = -.09,font=2)
 # par(mfrow = c(1,1), xpd=NA, mar=c(5, 4, 4, 2) + 0.1, family = "")
 
-
 # dev.off()
+
+#############################################
 
 # forecast fig for herman slade. uncomment forecast code above and run model before plotting
 # new fig for paper
@@ -696,8 +660,11 @@ detach.jags()
 # # 
 # # dev.off()
 
+###############################################
+
 # forecast fig for herman slade. uncomment forecast code above and run model before plotting
 # new fig for paper
+
 #png(filename = "output/fig_3_kowari_1State.png", width = 200, height = 160, units = 'mm', res = 300) 
 
 par(mfrow = c(2,1), xpd=F, mar=c(2, 4.1, 3.1, 11), family = "serif")
@@ -743,10 +710,6 @@ for(i in 1:length(kow.x.ZC.1.TN.UC.r)){
     kow.x.ZC.1.TN.UC.r[i] ==0}
 }
 
-
-
-# png(filename = "output/fig_kowari_1State_forecast.png", width = 200, height = 120, units = 'mm', res = 300) 
-# 
 matplot(years.m[1:19], (kow.x.ZC.1.TN.r)[1:19], xlim=c(2000, 2020), ylim = c(0,8),yaxs="i", type="l",
         lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
         bty="l", font.lab=2)
@@ -757,6 +720,7 @@ matlines(years.m[1:16], (kow.x.ZC.1.TN.r)[1:16], lwd=1)
 matlines(years.m[16:19], (kow.x.ZC.1.TN.r)[16:19], lwd=1, lty=2)
 matpoints(years.m[1:16],t(kowari.l),pch=15:16, cex =1, col=c("black", "blue"))
 
+# dev.off()
 
 
 # mcmcplot(kowariMARSS)
