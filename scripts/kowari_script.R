@@ -501,11 +501,11 @@ print(Z.1)
 kowari.log <- log(kowari.l+1)
 
 # forecast
-# kowari.log <- cbind(kowari.log, rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2),
-#       rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2),
-#       rep(NA,2), rep(NA,2), rep(NA,2))
-# 
-# years.m <- seq(2000, 2035, 1)
+kowari.log <- cbind(kowari.log, rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2),
+      rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2), rep(NA,2),
+      rep(NA,2), rep(NA,2), rep(NA,2))
+
+years.m <- seq(2000, 2035, 1)
 
 
 # save data for HPC
@@ -528,12 +528,12 @@ Y <-kowari.log
 n.pop <- dim(Y)[1]
 n.yrs <- dim(Y)[2]
 
-model.location.1ZC.TN <- MARSS.1.B #model function
+model.location.1ZC.TN <- MARSS.1.B #MARSS.1.bs # MARSS.1.B #model function
 
 
 #Then we can run the model using the code
 # Specify the parameters / data list / model file name
-jags.params <- c("x", "sigmaQ","sigmaR", "B", "U", "A") 
+jags.params <- c("x", "sigmaQ","sigmaR", "B", "U", "A") # b = birth rate, d = death rate
 jags.data <- list("Y","n.pop","n.yrs","n.states.1","Z.1") #     
 
 
@@ -564,8 +564,25 @@ kow.x.ZC.1.TN.UC.r <- exp(kow.x.ZC.1.TN.UC)-1
 
 detach.jags()
 
+# test <-numeric()
+# for(i in 1:length(kowariMARSS$BUGSoutput$mean$x)){
+#   test[i] <-
+#   kowariMARSS$BUGSoutput$mean$b*kowariMARSS$BUGSoutput$mean$x[i]-
+#     kowariMARSS$BUGSoutput$mean$d*kowariMARSS$BUGSoutput$mean$x[i]
+#   
+# }
+# return(test)
+# mean(test)
+
+#           mu.vect sd.vect    2.5%    25%    50%    75%  97.5%
+# U          -0.082   0.089  -0.261 -0.130 -0.081 -0.035  0.101
+# 
+# 
+
+
+
 ###############################################
-# adding symbols for sites. Used in paper
+# adding symbols for sites.
 ###############################################
 
 #png(filename = "output/fig_kowari_1State.png", width = 200, height = 160, units = 'mm', res = 300) 
@@ -604,20 +621,95 @@ detach.jags()
 #par(mfrow = c(1,1), xpd=NA, mar=c(5, 4, 4, 2) + 0.1, family = "")
 #######
 
-# fig for female reproduction and long-term dynamics for paper
+# fig for female reproduction and long-term dynamics 
 
-#png(filename = "output/fig_kowari_1State.png", width = 200, height = 160, units = 'mm', res = 300) 
+# #png(filename = "output/fig_3_kowari_1State.png", width = 200, height = 160, units = 'mm', res = 300) 
+# 
+# par(mfrow = c(2,1), xpd=F, mar=c(2, 4.1, 3.1, 11), family = "serif")
+# plot(py.y$Year, py.y$Num_young, xaxt="n", xlab=NA, ylab="Pouch young",bty="l",
+#      pch=18, xlim=c(1999, 2016),ylim = c(0,6), font.lab=2, cex=1.5)
+#   axis(1, at=c(2000,2005,2010,2015) ,labels=NA)
+#   arrows(py.y$Year, py.y$Num_young-py.y$ci, py.y$Year, py.y$Num_young+py.y$ci,
+#          length=0.05, angle=90, code=3)
+# 
+#   par(xpd=T)
+#   for(i in 1:length(prop.breeding.f$pro.breed)){
+#     ifelse(prop.breeding.f$breeding[i]>0, 
+#          
+#          floating.pie(prop.breeding.f$Year[i],7,
+#                       c(prop.breeding.f$breeding[i],
+#                         (prop.breeding.f$total[i]- prop.breeding.f$breeding[i])),
+#                       radius=0.4,col=c("darkgrey","white")),
+#          
+#          floating.pie(prop.breeding.f$Year[i],7,    #prop.breeding.f$Year
+#                       c(prop.breeding.f$breeding[i]+0.01,
+#                         (prop.breeding.f$total[i]- prop.breeding.f$breeding[i])),
+#                       radius=0.4,col=c("darkgrey","white")))
+#   } 
+#   mtext(side = 3, line = 1, 'a)', adj = -.09,font=2)
+#   
+#   legend("topright",xpd=T, legend=c("Breeding females", "Pouch young" ,paste(sites)),
+#          pch=c(21,18,15,16),
+#        pt.bg="darkgrey",
+#        cex=1, pt.cex = c(3.8,1.5,1,1),
+#        col=c("black","black","black","blue"),box.col=NA,inset=c(-.3,0))  
+# 
+# par(mar=c(4.1, 4.1, 0, 11))
+# matplot(years.m, (kow.x.ZC.1.TN.r), xlim=c(1999, 2016), ylim = c(0,8), type="l",
+#         lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
+#         bty="l", font.lab=2)
+#   polygon(c(years.m,rev(years.m)),c(t(kow.x.ZC.1.TN.LC.r), rev( t(kow.x.ZC.1.TN.UC.r))) ,
+#         col = adjustcolor("grey90", 0.9), border = NA)
+#   matlines(years.m, (kow.x.ZC.1.TN.r), lwd=1)
+#   matpoints(years.m,t(kowari.l),pch=15:16, cex =1, col=c("black", "blue"))
+# 
+#   mtext(side = 3, line = 1, 'b)', adj = -.09,font=2)
+# par(mfrow = c(1,1), xpd=NA, mar=c(5, 4, 4, 2) + 0.1, family = "")
+
+
+# dev.off()
+
+# forecast fig for herman slade. uncomment forecast code above and run model before plotting
+# new fig for paper
+# # convert -ve number to 0
+# for(i in 1:length(kow.x.ZC.1.TN.LC.r)){
+#       if(kow.x.ZC.1.TN.LC.r[i] <0){
+#              kow.x.ZC.1.TN.LC.r[i] ==0}
+#   }
+# 
+# for(i in 1:length(kow.x.ZC.1.TN.UC.r)){
+#   if(kow.x.ZC.1.TN.UC.r[i] <0){
+#     kow.x.ZC.1.TN.UC.r[i] ==0}
+#   }
+# 
+# # png(filename = "output/fig_kowari_1State_forecast.png", width = 200, height = 120, units = 'mm', res = 300) 
+# # 
+# matplot(years.m[1:19], (kow.x.ZC.1.TN.r)[1:19], xlim=c(2000, 2020), ylim = c(0,8),yaxs="i", type="l",
+#         lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
+#         bty="l", font.lab=2)
+# polygon(c(years.m[1:19],rev(years.m[1:19])),c(t(kow.x.ZC.1.TN.LC.r)[1:19], rev( t(kow.x.ZC.1.TN.UC.r)[1:19])) ,
+#         col = adjustcolor("grey90", 0.9), border = NA)
+# axis(1, labels = FALSE)
+# matlines(years.m[1:16], (kow.x.ZC.1.TN.r)[1:16], lwd=1)
+# matlines(years.m[16:19], (kow.x.ZC.1.TN.r)[16:19], lwd=1, lty=2)
+# matpoints(years.m[1:16],t(kowari.l),pch=15:16, cex =1, col=c("black", "blue"))
+# # 
+# # dev.off()
+
+# forecast fig for herman slade. uncomment forecast code above and run model before plotting
+# new fig for paper
+#png(filename = "output/fig_3_kowari_1State.png", width = 200, height = 160, units = 'mm', res = 300) 
 
 par(mfrow = c(2,1), xpd=F, mar=c(2, 4.1, 3.1, 11), family = "serif")
 plot(py.y$Year, py.y$Num_young, xaxt="n", xlab=NA, ylab="Pouch young",bty="l",
      pch=18, xlim=c(1999, 2016),ylim = c(0,6), font.lab=2, cex=1.5)
-  axis(1, at=c(2000,2005,2010,2015) ,labels=NA)
-  arrows(py.y$Year, py.y$Num_young-py.y$ci, py.y$Year, py.y$Num_young+py.y$ci,
-         length=0.05, angle=90, code=3)
+axis(1, at=c(2000,2005,2010,2015) ,labels=NA)
+arrows(py.y$Year, py.y$Num_young-py.y$ci, py.y$Year, py.y$Num_young+py.y$ci,
+       length=0.05, angle=90, code=3)
 
-  par(xpd=T)
-  for(i in 1:length(prop.breeding.f$pro.breed)){
-    ifelse(prop.breeding.f$breeding[i]>0, 
+par(xpd=T)
+for(i in 1:length(prop.breeding.f$pro.breed)){
+  ifelse(prop.breeding.f$breeding[i]>0, 
          
          floating.pie(prop.breeding.f$Year[i],7,
                       c(prop.breeding.f$breeding[i],
@@ -628,45 +720,44 @@ plot(py.y$Year, py.y$Num_young, xaxt="n", xlab=NA, ylab="Pouch young",bty="l",
                       c(prop.breeding.f$breeding[i]+0.01,
                         (prop.breeding.f$total[i]- prop.breeding.f$breeding[i])),
                       radius=0.4,col=c("darkgrey","white")))
-  } 
-  mtext(side = 3, line = 1, 'a)', adj = -.09,font=2)
-  
-  legend("topright",xpd=T, legend=c("Breeding females", "Pouch young" ,paste(sites)),
-         pch=c(21,18,15,16),
+} 
+mtext(side = 3, line = 1, 'a)', adj = -.09,font=2)
+
+legend("topright",xpd=T, legend=c("Breeding females", "Pouch young" ,paste(sites)),
+       pch=c(21,18,15,16),
        pt.bg="darkgrey",
        cex=1, pt.cex = c(3.8,1.5,1,1),
        col=c("black","black","black","blue"),box.col=NA,inset=c(-.3,0))  
 
 par(mar=c(4.1, 4.1, 0, 11))
-matplot(years.m, (kow.x.ZC.1.TN.r), xlim=c(1999, 2016), ylim = c(0,8), type="l",
-        lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
-        bty="l", font.lab=2)
-  polygon(c(years.m,rev(years.m)),c(t(kow.x.ZC.1.TN.LC.r), rev( t(kow.x.ZC.1.TN.UC.r))) ,
-        col = adjustcolor("grey90", 0.9), border = NA)
-  matlines(years.m, (kow.x.ZC.1.TN.r), lwd=1)
-  matpoints(years.m,t(kowari.l),pch=15:16, cex =1, col=c("black", "blue"))
-
-  mtext(side = 3, line = 1, 'b)', adj = -.09,font=2)
-par(mfrow = c(1,1), xpd=NA, mar=c(5, 4, 4, 2) + 0.1, family = "")
 
 
-# dev.off()
+# convert -ve number to 0
+for(i in 1:length(kow.x.ZC.1.TN.LC.r)){
+  if(kow.x.ZC.1.TN.LC.r[i] <0){
+    kow.x.ZC.1.TN.LC.r[i] ==0}
+}
 
-# forecast fig for herman slade. uncomment forecast code above and run model before plotting
+for(i in 1:length(kow.x.ZC.1.TN.UC.r)){
+  if(kow.x.ZC.1.TN.UC.r[i] <0){
+    kow.x.ZC.1.TN.UC.r[i] ==0}
+}
+
+
 
 # png(filename = "output/fig_kowari_1State_forecast.png", width = 200, height = 120, units = 'mm', res = 300) 
 # 
-# matplot(years.m[1:25], (kow.x.ZC.1.TN.r)[1:25], xlim=c(1999, 2025), ylim = c(0,8), type="l",
-#         lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
-#         bty="l", font.lab=2)
-# polygon(c(years.m[1:25],rev(years.m[1:25])),c(t(kow.x.ZC.1.TN.LC.r)[1:25], rev( t(kow.x.ZC.1.TN.UC.r)[1:25])) ,
-#         col = adjustcolor("grey90", 0.9), border = NA)
-# axis(1, labels = FALSE)
-# matlines(years.m[1:16], (kow.x.ZC.1.TN.r)[1:16], lwd=1)
-# matlines(years.m[16:25], (kow.x.ZC.1.TN.r)[16:25], lwd=1, lty=2)
-# matpoints(years.m[1:16],t(kowari.l),pch=15, cex =1, col=c("black"))
-# 
-# dev.off()
+matplot(years.m[1:19], (kow.x.ZC.1.TN.r)[1:19], xlim=c(2000, 2020), ylim = c(0,8),yaxs="i", type="l",
+        lwd=1, xlab="Year", ylab="Captures (100 trap nights)",
+        bty="l", font.lab=2)
+polygon(c(years.m[1:19],rev(years.m[1:19])),c(t(kow.x.ZC.1.TN.LC.r)[1:19], rev( t(kow.x.ZC.1.TN.UC.r)[1:19])) ,
+        col = adjustcolor("grey90", 0.9), border = NA)
+axis(1, labels = FALSE)
+matlines(years.m[1:16], (kow.x.ZC.1.TN.r)[1:16], lwd=1)
+matlines(years.m[16:19], (kow.x.ZC.1.TN.r)[16:19], lwd=1, lty=2)
+matpoints(years.m[1:16],t(kowari.l),pch=15:16, cex =1, col=c("black", "blue"))
+
+
 
 # mcmcplot(kowariMARSS)
 # 
