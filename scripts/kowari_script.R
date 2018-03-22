@@ -669,8 +669,8 @@ detach.jags()
 
 par(mfrow = c(2,1), xpd=F, mar=c(2, 4.1, 3.1, 11), family = "serif")
 plot(py.y$Year, py.y$Num_young, xaxt="n", xlab=NA, ylab="Pouch young",bty="l",
-     pch=18, xlim=c(1999, 2016),ylim = c(0,6), font.lab=2, cex=1.5)
-axis(1, at=c(2000,2005,2010,2015) ,labels=NA)
+     pch=18, xlim=c(2000, 2020),ylim = c(0,6), font.lab=2, cex=1.5)
+axis(1, at=c(2000,2005,2010,2015, 2020) ,labels=NA)
 arrows(py.y$Year, py.y$Num_young-py.y$ci, py.y$Year, py.y$Num_young+py.y$ci,
        length=0.05, angle=90, code=3)
 
@@ -715,10 +715,12 @@ matplot(years.m[1:19], (kow.x.ZC.1.TN.r)[1:19], xlim=c(2000, 2020), ylim = c(0,8
         bty="l", font.lab=2)
 polygon(c(years.m[1:19],rev(years.m[1:19])),c(t(kow.x.ZC.1.TN.LC.r)[1:19], rev( t(kow.x.ZC.1.TN.UC.r)[1:19])) ,
         col = adjustcolor("grey90", 0.9), border = NA)
-axis(1, labels = FALSE)
 matlines(years.m[1:16], (kow.x.ZC.1.TN.r)[1:16], lwd=1)
 matlines(years.m[16:19], (kow.x.ZC.1.TN.r)[16:19], lwd=1, lty=2)
 matpoints(years.m[1:16],t(kowari.l),pch=15:16, cex =1, col=c("black", "blue"))
+mtext(side = 3, line = 1, 'b)', adj = -.09,font=2)
+
+par(mfrow = c(1,1), xpd=NA, mar=c(5, 4, 4, 2) + 0.1, family = "")
 
 # dev.off()
 
